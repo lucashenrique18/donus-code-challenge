@@ -117,7 +117,7 @@ describe('SignUp Controller', () => {
     expect(httpResponse.body).toEqual(new InvalidParamError('cpf'))
   })
 
-  test('Should call CpfValidator with correct email', async () => {
+  test('Should call CpfValidator with correct email', () => {
     const { sut, cpfValidatorStub } = makeSut()
     const isValidSpy = jest.spyOn(cpfValidatorStub, 'isValid')
     const httpRequest = {
@@ -132,7 +132,7 @@ describe('SignUp Controller', () => {
     expect(isValidSpy).toHaveBeenCalledWith('any_cpf')
   })
 
-  test('Should return 400 if password confirmation fails', async () => {
+  test('Should return 400 if password confirmation fails', () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
@@ -147,7 +147,7 @@ describe('SignUp Controller', () => {
     expect(httpResponse.body).toEqual(new InvalidParamError('passwordConfirmation'))
   })
 
-  test('Should return 500 if CpfValidator throws', async () => {
+  test('Should return 500 if CpfValidator throws', () => {
     const { sut, cpfValidatorStub } = makeSut()
     jest.spyOn(cpfValidatorStub, 'isValid').mockImplementationOnce(() => {
       throw new Error()
@@ -165,7 +165,7 @@ describe('SignUp Controller', () => {
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
-  test('Should return 500 if AddAccount throws', async () => {
+  test('Should return 500 if AddAccount throws', () => {
     const { sut, addAccountStub } = makeSut()
     jest.spyOn(addAccountStub, 'add').mockImplementationOnce(() => {
       throw new Error()
@@ -183,7 +183,7 @@ describe('SignUp Controller', () => {
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
-  test('Should call AddAccount with correct values', async () => {
+  test('Should call AddAccount with correct values', () => {
     const { sut, addAccountStub } = makeSut()
     const addSpy = jest.spyOn(addAccountStub, 'add')
     const httpRequest = {
@@ -199,6 +199,26 @@ describe('SignUp Controller', () => {
       name: 'any_name',
       cpf: 'any_cpf',
       password: 'any_password'
+    })
+  })
+
+  test('Should return 200 if valid data is provided', () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        name: 'valid_name',
+        cpf: 'valid_cpf',
+        password: 'valid_password',
+        passwordConfirmation: 'valid_password'
+      }
+    }
+    const httpResponse = sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(200)
+    expect(httpResponse.body).toEqual({
+      id: 'valid_id',
+      name: 'valid_name',
+      cpf: 'valid_cpf',
+      password: 'valid_password'
     })
   })
 
