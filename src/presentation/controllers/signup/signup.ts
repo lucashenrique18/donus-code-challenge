@@ -1,6 +1,6 @@
 import { HttpResponse, HttpRequest, Controller, CpfValidator, AddAccount } from './signup-protocols'
 import { MissingParamError, InvalidParamError } from '../../errors'
-import { badRequest, serverError } from '../../helpers/http-helper'
+import { badRequest, serverError, ok } from '../../helpers/http-helper'
 
 export class SignUpController implements Controller {
   private readonly cpfValidator: CpfValidator
@@ -27,11 +27,12 @@ export class SignUpController implements Controller {
       if (password !== passwordConfirmation) {
         return badRequest(new InvalidParamError('passwordConfirmation'))
       }
-      this.addAccount.add({
+      const account = this.addAccount.add({
         name,
         cpf,
         password
       })
+      return ok(account)
     } catch (error) {
       console.error(error)
       return serverError()
