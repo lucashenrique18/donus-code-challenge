@@ -1,12 +1,15 @@
 import { HttpRequest, HttpResponse, Controller, CpfValidator } from '../../protocols'
 import { MissingParamError, InvalidParamError } from '../../errors'
 import { badRequest, serverError } from '../../helpers/http-helper'
+import { AddAccount } from '../../../domain/usecases/add-account/add-account'
 
 export class SignUpController implements Controller {
   private readonly cpfValidator: CpfValidator
+  private readonly addAccount: AddAccount
 
-  constructor (cpfValidator: CpfValidator) {
+  constructor (cpfValidator: CpfValidator, addAccount: AddAccount) {
     this.cpfValidator = cpfValidator
+    this.addAccount = addAccount
   }
 
   handle (httpRequest: HttpRequest): HttpResponse {
@@ -25,6 +28,11 @@ export class SignUpController implements Controller {
       if (password !== passwordConfirmation) {
         return badRequest(new InvalidParamError('passwordConfirmation'))
       }
+      this.addAccount.add({
+        name,
+        cpf,
+        password
+      })
     } catch (error) {
       console.error(error)
       return serverError()
