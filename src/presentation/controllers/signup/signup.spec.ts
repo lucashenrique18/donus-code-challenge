@@ -117,7 +117,7 @@ describe('SignUp Controller', () => {
     expect(httpResponse.body).toEqual(new InvalidParamError('cpf'))
   })
 
-  test('Should call CpfValidator with correct email', async () => {
+  test('Should call CpfValidator with correct cpf', async () => {
     const { sut, cpfValidatorStub } = makeSut()
     const isValidSpy = jest.spyOn(cpfValidatorStub, 'isValid')
     const httpRequest = {
