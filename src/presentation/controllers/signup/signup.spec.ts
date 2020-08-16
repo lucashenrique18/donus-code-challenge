@@ -7,13 +7,17 @@ interface SutTypes {
   cpfValidatorStub: CpfValidator
 }
 
-const makeSut = (): SutTypes => {
+const makeCpfValidator = (): CpfValidator => {
   class CpfValidatorStub implements CpfValidator {
     isValid (cpf: string): boolean {
       return true
     }
   }
-  const cpfValidatorStub = new CpfValidatorStub()
+  return new CpfValidatorStub()
+}
+
+const makeSut = (): SutTypes => {
+  const cpfValidatorStub = makeCpfValidator()
   const sut = new SignUpController(cpfValidatorStub)
   return {
     sut,
