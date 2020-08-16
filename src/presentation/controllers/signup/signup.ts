@@ -18,7 +18,7 @@ export class SignUpController implements Controller {
         }
       }
       const {name, cpf, password, passwordConfirmation} = httpRequest.body
-      const isValidCpf = this.cpfValidator.isValid(httpRequest.body.cpf)
+      const isValidCpf = this.cpfValidator.isValid(cpf)
       if (!isValidCpf) {
         return badRequest(new InvalidParamError('cpf'))
       }
