@@ -20,9 +20,13 @@ export class SignUpController implements Controller {
           return badRequest(new MissingParamError(field))
         }
       }
+      const {name, cpf, password, passwordConfirmation} = httpRequest.body
       const isValidCpf = this.cpfValidator.isValid(httpRequest.body.cpf)
       if (!isValidCpf) {
         return badRequest(new InvalidParamError('cpf'))
+      }
+      if (password !== passwordConfirmation) {
+        return badRequest(new InvalidParamError('passwordConfirmation'))
       }
     } catch (error) {
       console.error(error)
