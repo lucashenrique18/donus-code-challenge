@@ -1,10 +1,28 @@
 import { SignUpController } from './signup'
 import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
 import { CpfValidator } from '../../protocols'
+import { AccountModel } from '../../../domain/models/account-model'
+import { AddAccountModel, AddAccount } from '../../../domain/usecases/add-account/add-account'
 
 interface SutTypes {
   sut: SignUpController
   cpfValidatorStub: CpfValidator
+  addAccountStub: AddAccount
+}
+
+const makeAddAccount = (): AddAccount => {
+  class AddAccountStub implements AddAccount {
+    add (account: AddAccountModel): AccountModel {
+      const fakeAccount = {
+        id: 'valid_id',
+        name: 'valid_name',
+        cpf: 'valid_cpf',
+        password: 'valid_password'
+      }
+      return fakeAccount
+    }
+  }
+  return new AddAccountStub()
 }
 
 const makeCpfValidator = (): CpfValidator => {
@@ -18,10 +36,12 @@ const makeCpfValidator = (): CpfValidator => {
 
 const makeSut = (): SutTypes => {
   const cpfValidatorStub = makeCpfValidator()
-  const sut = new SignUpController(cpfValidatorStub)
+  const addAccountStub = makeAddAccount()
+  const sut = new SignUpController(cpfValidatorStub, addAccountStub)
   return {
     sut,
-    cpfValidatorStub
+    cpfValidatorStub,
+    addAccountStub
   }
 }
 
@@ -145,6 +165,25 @@ describe('SignUp Controller', () => {
     const httpResponse = sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
+  })
+
+  test('Should call AddAccount with correct values', async () => {
+    const { sut, addAccountStub } = makeSut()
+    const addSpy = jest.spyOn(addAccountStub, 'add')
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        cpf: 'any_cpf',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    sut.handle(httpRequest)
+    expect(addSpy).toHaveBeenCalledWith({
+      name: 'any_name',
+      cpf: 'any_cpf',
+      password: 'any_password'
+    })
   })
 
 })
