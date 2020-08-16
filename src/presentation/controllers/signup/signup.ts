@@ -1,7 +1,6 @@
-import { HttpRequest, HttpResponse, Controller, CpfValidator } from '../../protocols'
+import { HttpResponse, HttpRequest, Controller, CpfValidator, AddAccount } from './signup-protocols'
 import { MissingParamError, InvalidParamError } from '../../errors'
 import { badRequest, serverError } from '../../helpers/http-helper'
-import { AddAccount } from '../../../domain/usecases/add-account/add-account'
 
 export class SignUpController implements Controller {
   private readonly cpfValidator: CpfValidator
