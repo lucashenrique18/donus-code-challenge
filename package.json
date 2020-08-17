@@ -1,5 +1,5 @@
 {
-  "name": "donus-code-challend",
+  "name": "donus-code-challenge",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
     "@types/jest": "^26.0.10",
     "@types/node": "^14.0.27",
     "@typescript-eslint/eslint-plugin": "^3.9.0",
@@ -29,6 +30,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@fnando/cpf": "^1.0.2"
+    "@fnando/cpf": "^1.0.2",
+    "bcrypt": "^5.0.0"
   }
 }
