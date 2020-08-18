@@ -40,6 +40,7 @@
     "@fnando/cpf": "^1.0.2",
     "bcrypt": "^5.0.0",
     "express": "^4.17.1",
+    "fast-glob": "^3.2.4",
     "mongodb": "^3.6.0"
   }
 }
