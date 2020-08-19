@@ -92,4 +92,18 @@ describe('Deposit Controller', () => {
     expect(isValidSpy).toHaveBeenCalledWith('any_cpf')
   })
 
+  test('Should return 400 if an invalid depositValue is provided ', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        cpf: 'invalid_cpf',
+        password: 'any_password',
+        depositValue: -100.00
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamError('depositValue'))
+  })
+
 })
