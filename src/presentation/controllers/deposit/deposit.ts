@@ -17,10 +17,13 @@ export class DepositController implements Controller {
         return badRequest(new MissingParamError(field))
       }
     }
-    const { cpf } = httpRequest.body
+    const { cpf, depositValue } = httpRequest.body
     const isValidCpf = this.cpfValidator.isValid(cpf)
     if (!isValidCpf) {
       return badRequest(new InvalidParamError('cpf'))
+    }
+    if (depositValue <= 0) {
+      return badRequest(new InvalidParamError('depositValue'))
     }
     return null
   }
