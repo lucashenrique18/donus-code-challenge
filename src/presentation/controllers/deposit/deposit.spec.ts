@@ -1,4 +1,4 @@
-import { MissingParamError, InvalidParamError } from '../../errors'
+import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
 import { DepositController } from './deposit'
 import { CpfValidator } from '../../protocols/cpf-validator'
 
@@ -22,6 +22,7 @@ const makeSut = (): SutTypes => {
 }
 
 const validDepositValue = 100
+const invalidDepositValue = -100
 
 describe('Deposit Controller', () => {
   test('Should return 400 if no cpf is provided', async () => {
@@ -96,14 +97,31 @@ describe('Deposit Controller', () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
-        cpf: 'invalid_cpf',
+        cpf: 'any_cpf',
         password: 'any_password',
-        depositValue: -100.00
+        depositValue: invalidDepositValue
       }
     }
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamError('depositValue'))
+  })
+
+  test('Should return 500 if CpfValidator throws', async () => {
+    const { sut, cpfValidatorStub } = makeSut()
+    jest.spyOn(cpfValidatorStub, 'isValid').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        depositValue: validDepositValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 
 })
