@@ -28,4 +28,17 @@ describe('Deposit Controller', () => {
     expect(httpResponse.body).toEqual(new MissingParamError('password'))
   })
 
+  test('Should return 400 if no depositValue is provided', async () => {
+    const sut = new DepositController()
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password'
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new MissingParamError('depositValue'))
+  })
+
 })
