@@ -3,4 +3,5 @@ export interface AccountModel {
   name: string
   cpf: string
   password: string
+  money: number
 }

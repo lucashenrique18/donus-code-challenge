@@ -15,7 +15,8 @@ const makeAddAccount = (): AddAccount => {
         id: 'valid_id',
         name: 'valid_name',
         cpf: 'valid_cpf',
-        password: 'valid_password'
+        password: 'valid_password',
+        money: 0
       }
       return new Promise(resolve => resolve(fakeAccount))
     }
@@ -218,7 +219,8 @@ describe('SignUp Controller', () => {
       id: 'valid_id',
       name: 'valid_name',
       cpf: 'valid_cpf',
-      password: 'valid_password'
+      password: 'valid_password',
+      money: 0
     })
   })
 

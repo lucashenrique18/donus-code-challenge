@@ -17,7 +17,8 @@ const makeAddAccountRepository = (): AddAccountRepository => {
         id: 'valid_id',
         name: 'valid_name',
         cpf: 'valid_cpf',
-        password: 'hashed_password'
+        password: 'hashed_password',
+        money: 0
       }
       return new Promise(resolve => resolve(fakeAccount))
     }
@@ -79,7 +80,8 @@ describe('DbAddAccount Usecase', () => {
     expect(addSpy).toHaveBeenCalledWith({
       name: 'valid_name',
       cpf: 'valid_cpf',
-      password: 'hashed_password'
+      password: 'hashed_password',
+      money: 0
     })
   })
 
@@ -107,7 +109,8 @@ describe('DbAddAccount Usecase', () => {
       id: 'valid_id',
       name: 'valid_name',
       cpf: 'valid_cpf',
-      password: 'hashed_password'
+      password: 'hashed_password',
+      money: 0
     })
   })
 
