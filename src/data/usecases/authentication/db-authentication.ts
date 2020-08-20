@@ -1,6 +1,4 @@
-import { Authentication } from '../../../domain/usecases/authentication/authentication'
-import { LoadAccountByCpfRepository } from '../../protocols/load-account-by-cpf-repository';
-import { HashComparer } from '../../protocols/hash-comparer';
+import { LoadAccountByCpfRepository, HashComparer, Authentication } from './db-authentication-protocols'
 
 export class DbAuthentication implements Authentication {
   private readonly loadAccountByCpfRepository: LoadAccountByCpfRepository

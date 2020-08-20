@@ -1,7 +1,6 @@
-import { AccountModel } from "../../../domain/models/account-model"
-import { LoadAccountByCpfRepository } from "../../protocols/load-account-by-cpf-repository"
+
 import { DbAuthentication } from "./db-authentication"
-import { HashComparer } from "../../protocols/hash-comparer"
+import { AccountModel, LoadAccountByCpfRepository, HashComparer} from './db-authentication-protocols'
 
 const makeHashComparer = (): HashComparer => {
   class HashComparerStub implements HashComparer {
