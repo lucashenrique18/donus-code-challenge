@@ -32,13 +32,20 @@ const makeSut = (): SutTypes => {
   }
 }
 
-describe('DbAddAccount Usecase', () => {
+describe('Db Authentication Usecase', () => {
 
   test('Should call LoadAccountByCpfRepository with correct cpf', async () => {
     const {sut, loadAccountByCpfRepositoryStub} = makeSut()
     const loadSpy = jest.spyOn(loadAccountByCpfRepositoryStub, 'load')
     await sut.auth('any_cpf', 'any_password')
     expect(loadSpy).toHaveBeenCalledWith('any_cpf')
+  })
+
+  test('Should throw if LoadAccountByCpfRepository throws', async () => {
+    const { sut, loadAccountByCpfRepositoryStub } = makeSut()
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'load').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+    const promise = sut.auth('any_cpf', 'any_password')
+    await expect(promise).rejects.toThrow()
   })
 
 })
