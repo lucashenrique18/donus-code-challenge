@@ -17,7 +17,7 @@ const makeDepositAmount = (): DepositAmount => {
       const fakeDeposit = {
         name: 'valid_name',
         cpf: 'valid_cpf',
-        depositValue: 0
+        depositValue: validDepositValue
       }
       return new Promise(resolve => resolve(fakeDeposit))
     }
@@ -218,6 +218,24 @@ describe('Deposit Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
+  })
+
+  test('Should return 200 if valid data is provided', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        depositValue: validDepositValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(200)
+    expect(httpResponse.body).toEqual({
+      name: 'valid_name',
+      cpf: 'valid_cpf',
+      depositValue: validDepositValue
+    })
   })
 
 })
