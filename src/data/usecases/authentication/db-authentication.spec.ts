@@ -65,7 +65,7 @@ describe('Db Authentication Usecase', () => {
     const {sut, loadAccountByCpfRepositoryStub} = makeSut()
     jest.spyOn(loadAccountByCpfRepositoryStub, 'load').mockReturnValueOnce(null)
     const accountExists = await sut.auth('any_cpf', 'any_password')
-    expect(accountExists).toBeNull()
+    expect(accountExists).toBeFalsy()
   })
 
   test('Should call HashComparer with correct values', async () => {
@@ -86,7 +86,13 @@ describe('Db Authentication Usecase', () => {
     const {sut, hashComparerStub} = makeSut()
     jest.spyOn(hashComparerStub, 'compare').mockReturnValueOnce(new Promise(resolve => resolve(false)))
     const accountExists = await sut.auth('any_cpf', 'any_password')
-    expect(accountExists).toBeNull()
+    expect(accountExists).toBeFalsy()
+  })
+
+  test('Should return true if DbAuthentication returns true', async () => {
+    const {sut,} = makeSut()
+    const accountExists = await sut.auth('any_cpf', 'any_password')
+    expect(accountExists).toBeTruthy()
   })
 
 })
