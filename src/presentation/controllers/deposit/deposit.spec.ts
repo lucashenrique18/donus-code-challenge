@@ -1,23 +1,46 @@
 import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
 import { DepositController } from './deposit'
 import { CpfValidator } from '../../protocols/cpf-validator'
+import { DepositAmount, DepositAmountModel } from '../../../domain/usecases/deposit-amount/deposit-amount'
+import { DepositModel } from '../../../domain/models/deposit-model'
 
 interface SutTypes {
   sut: DepositController
-  cpfValidatorStub: CpfValidator
+  cpfValidatorStub: CpfValidator,
+  depositAmountStub: DepositAmount
 }
 
-const makeSut = (): SutTypes => {
+const makeDepositAmount = (): DepositAmount => {
+  class DepositAmountStub implements DepositAmount {
+    async deposit (deposit: DepositAmountModel): Promise<DepositModel> {
+      const fakeDeposit = {
+        name: 'valid_name',
+        cpf: 'valid_cpf',
+        depositValue: 0
+      }
+      return new Promise(resolve => resolve(fakeDeposit))
+    }
+  }
+  return new DepositAmountStub()
+}
+
+const makeCpfValidator = (): CpfValidator => {
   class CpfValidatorStub implements CpfValidator {
     isValid (cpf: string): boolean {
       return true
     }
   }
-  const cpfValidatorStub = new CpfValidatorStub()
-  const sut = new DepositController(cpfValidatorStub)
+  return new CpfValidatorStub()
+}
+
+const makeSut = (): SutTypes => {
+  const cpfValidatorStub = makeCpfValidator()
+  const depositAmountStub = makeDepositAmount()
+  const sut = new DepositController(cpfValidatorStub, depositAmountStub)
   return {
     sut,
-    cpfValidatorStub
+    cpfValidatorStub,
+    depositAmountStub
   }
 }
 
@@ -111,6 +134,23 @@ describe('Deposit Controller', () => {
     const { sut, cpfValidatorStub } = makeSut()
     jest.spyOn(cpfValidatorStub, 'isValid').mockImplementationOnce(() => {
       throw new Error()
+    })
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        depositValue: validDepositValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
+  test('Should return 500 if DepositAmount throws', async () => {
+    const { sut, depositAmountStub } = makeSut()
+    jest.spyOn(depositAmountStub, 'deposit').mockImplementationOnce(async () => {
+      return new Promise((resolve, reject) => reject(new Error()))
     })
     const httpRequest = {
       body: {
