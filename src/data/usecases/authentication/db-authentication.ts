@@ -12,10 +12,10 @@ export class DbAuthentication implements Authentication {
 
   async auth (cpf: string, password: string): Promise<boolean> {
     const account = await this.loadAccountByCpfRepository.load(cpf)
-    if (!account) {
-      return null
+    if (account) {
+      await this.hashComparer.compare(password, account.password)
     }
-    await this.hashComparer.compare(password, account.password)
+    return null
   }
 
 }
