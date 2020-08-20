@@ -4,6 +4,7 @@ import { CpfValidator } from '../../protocols/cpf-validator'
 import { DepositAmount, DepositAmountModel } from '../../../domain/usecases/deposit-amount/deposit-amount'
 import { DepositModel } from '../../../domain/models/deposit-model'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
+import { UnauthorizedError } from '../../errors/unauthorized-error'
 
 const makeAuthentication = (): Authentication => {
   class AuthenticationStub implements Authentication {
@@ -191,5 +192,19 @@ describe('Deposit Controller', () => {
     expect(authSpy).toHaveBeenCalledWith('any_cpf', 'any_password')
   })
 
+  test('Should return 401 if invalid credentials are provided', async () => {
+    const { sut, authenticationStub } = makeSut()
+    jest.spyOn(authenticationStub, 'auth').mockReturnValueOnce(new Promise(resolve => resolve(false)))
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        depositValue: validDepositValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(401)
+    expect(httpResponse.body).toEqual(new UnauthorizedError())
+  })
 
 })
