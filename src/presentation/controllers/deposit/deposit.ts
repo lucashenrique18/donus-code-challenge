@@ -1,6 +1,6 @@
 import { Controller, HttpRequest, HttpResponse } from "../../protocols";
 import { MissingParamError, InvalidParamError } from '../../errors'
-import { badRequest, serverError } from '../../helpers/http-helper'
+import { badRequest, serverError, unauthorized } from '../../helpers/http-helper'
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { DepositAmount } from "../../../domain/usecases/deposit-amount/deposit-amount";
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
@@ -32,7 +32,10 @@ export class DepositController implements Controller {
       if (depositValue <= 0) {
         return badRequest(new InvalidParamError('depositValue'))
       }
-      this.authentication.auth(cpf, password)
+      const isAuth = await this.authentication.auth(cpf, password)
+      if (!isAuth) {
+        return unauthorized()
+      }
       await this.depositAmount.deposit({
          cpf, password, depositValue
       })
