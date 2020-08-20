@@ -3,11 +3,15 @@ import { DepositController } from './deposit'
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { DepositAmount, DepositAmountModel } from '../../../domain/usecases/deposit-amount/deposit-amount'
 import { DepositModel } from '../../../domain/models/deposit-model'
+import { Authentication } from '../../../domain/usecases/authentication/authentication'
 
-interface SutTypes {
-  sut: DepositController
-  cpfValidatorStub: CpfValidator,
-  depositAmountStub: DepositAmount
+const makeAuthentication = (): Authentication => {
+  class AuthenticationStub implements Authentication {
+    async auth (cpf: string, password: string): Promise<boolean> {
+      return true
+    }
+  }
+  return new AuthenticationStub()
 }
 
 const makeDepositAmount = (): DepositAmount => {
@@ -33,14 +37,23 @@ const makeCpfValidator = (): CpfValidator => {
   return new CpfValidatorStub()
 }
 
+interface SutTypes {
+  sut: DepositController
+  cpfValidatorStub: CpfValidator,
+  depositAmountStub: DepositAmount,
+  authenticationStub: Authentication
+}
+
 const makeSut = (): SutTypes => {
   const cpfValidatorStub = makeCpfValidator()
   const depositAmountStub = makeDepositAmount()
-  const sut = new DepositController(cpfValidatorStub, depositAmountStub)
+  const authenticationStub = makeAuthentication()
+  const sut = new DepositController(cpfValidatorStub, depositAmountStub, authenticationStub)
   return {
     sut,
     cpfValidatorStub,
-    depositAmountStub
+    depositAmountStub,
+    authenticationStub
   }
 }
 
@@ -163,5 +176,20 @@ describe('Deposit Controller', () => {
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
+
+  test('Should call Authentication with correct values', async () => {
+    const { sut, authenticationStub } = makeSut()
+    const authSpy = jest.spyOn(authenticationStub, 'auth')
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        depositValue: validDepositValue
+      }
+    }
+    await sut.handle(httpRequest)
+    expect(authSpy).toHaveBeenCalledWith('any_cpf', 'any_password')
+  })
+
 
 })
