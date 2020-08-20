@@ -203,4 +203,21 @@ describe('Deposit Controller', () => {
     expect(httpResponse.body).toEqual(new UnauthorizedError())
   })
 
+  test('Should return 500 if Authentication throws', async () => {
+    const { sut, authenticationStub } = makeSut()
+    jest.spyOn(authenticationStub, 'auth').mockImplementationOnce(async () => {
+      return new Promise((resolve, reject) => reject(new Error()))
+    })
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        depositValue: validDepositValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
 })
