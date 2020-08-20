@@ -1,5 +1,5 @@
 import { MissingParamError, InvalidParamError } from '../../errors'
-import { badRequest, serverError, unauthorized } from '../../helpers/http-helper'
+import { badRequest, serverError, unauthorized, ok } from '../../helpers/http-helper'
 import { Authentication, DepositAmount, CpfValidator, Controller, HttpRequest, HttpResponse } from './deposit-protocol'
 
 export class DepositController implements Controller {
@@ -33,9 +33,10 @@ export class DepositController implements Controller {
       if (!isAuth) {
         return unauthorized()
       }
-      await this.depositAmount.deposit({
+      const deposit = await this.depositAmount.deposit({
          cpf, password, depositValue
       })
+      return ok(deposit)
     } catch (error) {
       console.error(error)
       return serverError()
