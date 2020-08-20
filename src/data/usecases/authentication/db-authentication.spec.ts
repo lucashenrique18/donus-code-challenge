@@ -48,4 +48,11 @@ describe('Db Authentication Usecase', () => {
     await expect(promise).rejects.toThrow()
   })
 
+  test('Should return null if LoadAccountByCpfRepository returns null', async () => {
+    const {sut, loadAccountByCpfRepositoryStub} = makeSut()
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'load').mockReturnValueOnce(null)
+    const accountExists = await sut.auth('any_cpf', 'any_password')
+    expect(accountExists).toBeNull()
+  })
+
 })

@@ -9,7 +9,7 @@ export class DbAuthentication implements Authentication {
 
   async auth (cpf: string, password: string): Promise<boolean> {
     await this.loadAccountByCpfRepository.load(cpf)
-    return true
+    return null
   }
 
 }
