@@ -1,9 +1,5 @@
 import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
-import { DepositController } from './deposit'
-import { CpfValidator } from '../../protocols/cpf-validator'
-import { DepositAmount, DepositAmountModel } from '../../../domain/usecases/deposit-amount/deposit-amount'
-import { DepositModel } from '../../../domain/models/deposit-model'
-import { Authentication } from '../../../domain/usecases/authentication/authentication'
+import { DepositAmount, DepositModel, DepositAmountModel, CpfValidator, Authentication, DepositController } from './deposit-protocol'
 import { UnauthorizedError } from '../../errors/unauthorized-error'
 
 const makeAuthentication = (): Authentication => {

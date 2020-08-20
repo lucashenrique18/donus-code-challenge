@@ -1,9 +1,6 @@
-import { Controller, HttpRequest, HttpResponse } from "../../protocols";
 import { MissingParamError, InvalidParamError } from '../../errors'
 import { badRequest, serverError, unauthorized } from '../../helpers/http-helper'
-import { CpfValidator } from '../../protocols/cpf-validator'
-import { DepositAmount } from "../../../domain/usecases/deposit-amount/deposit-amount";
-import { Authentication } from '../../../domain/usecases/authentication/authentication'
+import { Authentication, DepositAmount, CpfValidator, Controller, HttpRequest, HttpResponse } from './deposit-protocol'
 
 export class DepositController implements Controller {
   private readonly cpfValidator: CpfValidator

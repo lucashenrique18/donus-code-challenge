@@ -1,0 +1,6 @@
+export * from '../../protocols'
+export * from '../../protocols/cpf-validator'
+export * from '../../../domain/usecases/deposit-amount/deposit-amount'
+export * from '../../../domain/models/deposit-model'
+export * from '../../../domain/usecases/authentication/authentication'
+export * from './deposit'
