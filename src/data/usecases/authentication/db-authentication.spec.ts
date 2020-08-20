@@ -1,6 +1,16 @@
 import { AccountModel } from "../../../domain/models/account-model"
 import { LoadAccountByCpfRepository } from "../../protocols/load-account-by-cpf-repository"
 import { DbAuthentication } from "./db-authentication"
+import { HashComparer } from "../../protocols/hash-comparer"
+
+const makeHashComparer = (): HashComparer => {
+  class HashComparerStub implements HashComparer {
+    async compare (value: string, hash: string): Promise<boolean> {
+      return new Promise(resolve => resolve(true))
+    }
+  }
+  return new HashComparerStub()
+}
 
 const makeLoadAccountByCpfRepository = (): LoadAccountByCpfRepository => {
   class LoadAccountByCpfRepositoryStub implements LoadAccountByCpfRepository {
@@ -21,14 +31,17 @@ const makeLoadAccountByCpfRepository = (): LoadAccountByCpfRepository => {
 interface SutTypes {
   sut: DbAuthentication
   loadAccountByCpfRepositoryStub: LoadAccountByCpfRepository
+  hashComparerStub: HashComparer
 }
 
 const makeSut = (): SutTypes => {
   const loadAccountByCpfRepositoryStub = makeLoadAccountByCpfRepository()
-  const sut = new DbAuthentication(loadAccountByCpfRepositoryStub)
+  const hashComparerStub = makeHashComparer()
+  const sut = new DbAuthentication(loadAccountByCpfRepositoryStub, hashComparerStub)
   return {
     sut,
-    loadAccountByCpfRepositoryStub
+    loadAccountByCpfRepositoryStub,
+    hashComparerStub
   }
 }
 
@@ -37,7 +50,7 @@ describe('Db Authentication Usecase', () => {
   test('Should call LoadAccountByCpfRepository with correct cpf', async () => {
     const {sut, loadAccountByCpfRepositoryStub} = makeSut()
     const loadSpy = jest.spyOn(loadAccountByCpfRepositoryStub, 'load')
-    await sut.auth('any_cpf', 'any_password')
+    await sut.auth('any_cpf', 'hashed_password')
     expect(loadSpy).toHaveBeenCalledWith('any_cpf')
   })
 
@@ -53,6 +66,13 @@ describe('Db Authentication Usecase', () => {
     jest.spyOn(loadAccountByCpfRepositoryStub, 'load').mockReturnValueOnce(null)
     const accountExists = await sut.auth('any_cpf', 'any_password')
     expect(accountExists).toBeNull()
+  })
+
+  test('Should call HashComparer with correct values', async () => {
+    const {sut, hashComparerStub} = makeSut()
+    const compareSpy = jest.spyOn(hashComparerStub, 'compare')
+    await sut.auth('any_cpf', 'any_password')
+    expect(compareSpy).toHaveBeenCalledWith('any_password', 'hashed_password')
   })
 
 })
