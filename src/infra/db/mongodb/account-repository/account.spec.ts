@@ -38,7 +38,8 @@ describe('Account Mongo Repository', () => {
     await accountCollection.insertOne({
       name: 'any_name',
       cpf: 'any_cpf',
-      password: 'any_password'
+      password: 'any_password',
+      money: 0
     })
     const account = await sut.loadByCpf('any_cpf')
     expect(account).toBeTruthy()
@@ -53,4 +54,24 @@ describe('Account Mongo Repository', () => {
     const account = await sut.loadByCpf('any_cpf')
     expect(account).toBeFalsy()
   })
+
+  test('Should return an Deposit on deposit success', async () => {
+    const sut = new AccountMongoRepository()
+    await accountCollection.insertOne({
+      name: 'any_name',
+      cpf: 'any_cpf',
+      password: 'any_password',
+      money: 0
+    })
+    const account = await sut.deposit({
+      cpf: 'any_cpf',
+      password: 'any_password',
+      depositValue: 100
+    })
+    expect(account).toBeTruthy()
+    expect(account.name).toBe('any_name')
+    expect(account.cpf).toBe('any_cpf')
+    expect(account.depositValue).toBe(100)
+  })
+
 })
