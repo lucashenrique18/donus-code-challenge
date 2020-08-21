@@ -1,6 +1,7 @@
 import { DepositAccount } from './deposit-account'
 import { DepositModel } from "../../../domain/models/deposit-model"
 import { AlterMoneyAccountRepository } from "../../protocols/alter-money-account-repository"
+import { DepositAmountModel } from '../../../domain/usecases/deposit-amount/deposit-amount'
 
 const validDeposit = 100
 const depositWithBonus = validDeposit+(validDeposit*0.05)
@@ -17,7 +18,7 @@ const validDepositData = {
 
 const makeAlterMoneyAccountRepository = (): AlterMoneyAccountRepository => {
   class AlterMoneyAccountRepositoryStub implements AlterMoneyAccountRepository {
-    async deposit (depositValue: number): Promise<DepositModel> {
+    async deposit (deposit: DepositAmountModel): Promise<DepositModel> {
       return new Promise(resolve => resolve(validAccount))
     }
   }
@@ -45,7 +46,11 @@ describe('Deposit Account UseCase', () => {
     const {sut, alterMoneyAccountRepositoryStub} = makeSut()
     const loadSpy = jest.spyOn(alterMoneyAccountRepositoryStub, 'deposit')
     await sut.deposit(validDepositData)
-    expect(loadSpy).toHaveBeenCalledWith(validAccount.depositValue)
+    expect(loadSpy).toHaveBeenCalledWith({
+      cpf: 'any_cpf',
+      password: 'any_password',
+      depositValue: depositWithBonus
+    })
   })
 
   test('Should throw if AlterMoneyAccountRepository throws', async () => {

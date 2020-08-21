@@ -7,5 +7,5 @@ export interface DepositAmountModel {
 }
 
 export interface DepositAmount {
-  deposit (deposit: DepositAmountModel): Promise<DepositModel>
+  deposit (depositData: DepositAmountModel): Promise<DepositModel>
 }
