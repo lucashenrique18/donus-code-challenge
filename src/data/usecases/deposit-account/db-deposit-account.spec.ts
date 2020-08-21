@@ -1,6 +1,6 @@
-import { DepositAccount } from './deposit-account'
+import { DepositAccount } from './db-deposit-account'
 import { DepositModel } from "../../../domain/models/deposit-model"
-import { AlterMoneyAccountRepository } from "../../protocols/alter-money-account-repository"
+import { AlterMoneyAccountRepository } from "../../protocols/db/account/alter-money-account-repository";
 import { DepositAmountModel } from '../../../domain/usecases/deposit-amount/deposit-amount'
 
 const validDeposit = 100

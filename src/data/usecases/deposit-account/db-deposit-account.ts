@@ -1,5 +1,5 @@
 import { DepositAmount, DepositAmountModel } from "../../../domain/usecases/deposit-amount/deposit-amount";
-import { AlterMoneyAccountRepository } from "../../protocols/alter-money-account-repository";
+import { AlterMoneyAccountRepository } from "../../protocols/db/account/alter-money-account-repository";
 import { DepositModel } from "../../../domain/models/deposit-model";
 
 export class DepositAccount implements DepositAmount {

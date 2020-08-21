@@ -1,9 +1,9 @@
-import { AddAccountRepository } from '../../../../data/protocols/add-account-repository'
+import { AddAccountRepository } from '../../../../data/protocols/db/account/add-account-repository'
 import { AddAccountModel } from '../../../../domain/usecases/add-account/add-account'
 import { AccountModel } from '../../../../domain/models/account-model'
 import { MongoHelper } from '../helpers/mongo-helper'
-import { LoadAccountByCpfRepository } from '../../../../data/protocols/load-account-by-cpf-repository'
-import { AlterMoneyAccountRepository } from '../../../../data/protocols/alter-money-account-repository'
+import { LoadAccountByCpfRepository } from '../../../../data/protocols/db/account/load-account-by-cpf-repository'
+import { AlterMoneyAccountRepository } from '../../../../data/protocols/db/account/alter-money-account-repository'
 import { DepositAmountModel } from '../../../../domain/usecases/deposit-amount/deposit-amount'
 import { DepositModel } from '../../../../domain/models/deposit-model'
 
