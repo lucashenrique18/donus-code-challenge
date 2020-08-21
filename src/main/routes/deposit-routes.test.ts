@@ -37,4 +37,15 @@ describe('Deposit Routes', () => {
       .expect(200)
   })
 
+  test('Should return 401 if cpf or password are incorrect/notexists', async () => {
+    await request(app)
+      .post('/api/deposit')
+      .send({
+        cpf: '032.561.179-37',
+        password: '123',
+        depositValue: 100
+      })
+      .expect(401)
+  })
+
 })
