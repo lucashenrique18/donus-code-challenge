@@ -13,7 +13,7 @@ const makeHashComparer = (): HashComparer => {
 
 const makeLoadAccountByCpfRepository = (): LoadAccountByCpfRepository => {
   class LoadAccountByCpfRepositoryStub implements LoadAccountByCpfRepository {
-    async load (cpf: string): Promise<AccountModel> {
+    async loadByCpf (cpf: string): Promise<AccountModel> {
       const fakeAccount = {
         id: 'valid_id',
         name: 'valid_name',
@@ -48,21 +48,21 @@ describe('Db Authentication Usecase', () => {
 
   test('Should call LoadAccountByCpfRepository with correct cpf', async () => {
     const {sut, loadAccountByCpfRepositoryStub} = makeSut()
-    const loadSpy = jest.spyOn(loadAccountByCpfRepositoryStub, 'load')
+    const loadSpy = jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf')
     await sut.auth('any_cpf', 'hashed_password')
     expect(loadSpy).toHaveBeenCalledWith('any_cpf')
   })
 
   test('Should throw if LoadAccountByCpfRepository throws', async () => {
     const { sut, loadAccountByCpfRepositoryStub } = makeSut()
-    jest.spyOn(loadAccountByCpfRepositoryStub, 'load').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
     const promise = sut.auth('any_cpf', 'any_password')
     await expect(promise).rejects.toThrow()
   })
 
   test('Should return null if LoadAccountByCpfRepository returns null', async () => {
     const {sut, loadAccountByCpfRepositoryStub} = makeSut()
-    jest.spyOn(loadAccountByCpfRepositoryStub, 'load').mockReturnValueOnce(null)
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(null)
     const accountExists = await sut.auth('any_cpf', 'any_password')
     expect(accountExists).toBeFalsy()
   })
@@ -81,7 +81,7 @@ describe('Db Authentication Usecase', () => {
     await expect(promise).rejects.toThrow()
   })
 
-  test('Should return null if LoadAccountByCpfRepository returns false', async () => {
+  test('Should return false if HashComparer returns false', async () => {
     const {sut, hashComparerStub} = makeSut()
     jest.spyOn(hashComparerStub, 'compare').mockReturnValueOnce(new Promise(resolve => resolve(false)))
     const accountExists = await sut.auth('any_cpf', 'any_password')
