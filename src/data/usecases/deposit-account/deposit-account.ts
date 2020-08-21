@@ -8,8 +8,8 @@ export class DepositAccount implements DepositAmount {
     this.alterMoneyAccountRepository = alterMoneyAccountRepository
   }
 
-  async deposit (depositValue: DepositAmountModel): Promise<DepositModel> {
-    const deposit = await this.alterMoneyAccountRepository.deposit(depositValue.depositValue)
-    return deposit
+  async deposit (deposit: DepositAmountModel): Promise<DepositModel> {
+    const depositWithBonus = deposit.depositValue+(deposit.depositValue*0.05)
+    return await this.alterMoneyAccountRepository.deposit(depositWithBonus)
   }
 }
