@@ -3,15 +3,7 @@ import { badRequest, serverError, unauthorized, ok } from '../../helpers/http-he
 import { Authentication, DepositAmount, CpfValidator, Controller, HttpRequest, HttpResponse } from './deposit-protocol'
 
 export class DepositController implements Controller {
-  private readonly cpfValidator: CpfValidator
-  private readonly depositAmount: DepositAmount
-  private readonly authentication: Authentication
-
-  constructor (cpfValidator: CpfValidator, depositAmount: DepositAmount, authentication: Authentication) {
-    this.cpfValidator = cpfValidator
-    this.depositAmount = depositAmount
-    this.authentication = authentication
-  }
+  constructor (private readonly cpfValidator: CpfValidator, private readonly depositAmount: DepositAmount, private readonly authentication: Authentication) {}
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try{

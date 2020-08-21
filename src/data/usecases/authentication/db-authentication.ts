@@ -1,12 +1,7 @@
 import { LoadAccountByCpfRepository, HashComparer, Authentication } from './db-authentication-protocols'
 
 export class DbAuthentication implements Authentication {
-  private readonly loadAccountByCpfRepository: LoadAccountByCpfRepository
-  private readonly hashComparer: HashComparer
-  constructor (loadAccountByCpfRepository: LoadAccountByCpfRepository, hashComparer: HashComparer) {
-    this.loadAccountByCpfRepository = loadAccountByCpfRepository
-    this.hashComparer = hashComparer
-  }
+  constructor (private readonly loadAccountByCpfRepository: LoadAccountByCpfRepository, private readonly hashComparer: HashComparer) {}
 
   async auth (cpf: string, password: string): Promise<boolean> {
     const account = await this.loadAccountByCpfRepository.loadByCpf(cpf)

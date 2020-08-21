@@ -3,13 +3,7 @@ import { MissingParamError, InvalidParamError } from '../../errors'
 import { badRequest, serverError, ok } from '../../helpers/http-helper'
 
 export class SignUpController implements Controller {
-  private readonly cpfValidator: CpfValidator
-  private readonly addAccount: AddAccount
-
-  constructor (cpfValidator: CpfValidator, addAccount: AddAccount) {
-    this.cpfValidator = cpfValidator
-    this.addAccount = addAccount
-  }
+  constructor (private readonly cpfValidator: CpfValidator, private readonly addAccount: AddAccount) {}
 
   async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
     try{
