@@ -3,10 +3,11 @@ import { DepositModel } from "../../../domain/models/deposit-model"
 import { AlterMoneyAccountRepository } from "../../protocols/alter-money-account-repository"
 
 const validDeposit = 100
+const depositWithBonus = validDeposit+(validDeposit*0.05)
 const validAccount = {
   name: 'any_name',
   cpf: 'any_cpf',
-  depositValue: validDeposit
+  depositValue: depositWithBonus
 }
 const validDepositData = {
   cpf: 'any_cpf',
@@ -44,7 +45,7 @@ describe('Deposit Account UseCase', () => {
     const {sut, alterMoneyAccountRepositoryStub} = makeSut()
     const loadSpy = jest.spyOn(alterMoneyAccountRepositoryStub, 'deposit')
     await sut.deposit(validDepositData)
-    expect(loadSpy).toHaveBeenCalledWith(validDeposit)
+    expect(loadSpy).toHaveBeenCalledWith(validAccount.depositValue)
   })
 
   test('Should throw if AlterMoneyAccountRepository throws', async () => {
@@ -52,6 +53,12 @@ describe('Deposit Account UseCase', () => {
     jest.spyOn(alterMoneyAccountRepositoryStub, 'deposit').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
     const promise = sut.deposit(validDepositData)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should return an account on success', async () => {
+    const { sut } = makeSut()
+    const account = await sut.deposit(validDepositData)
+    expect(account).toEqual(validAccount)
   })
 
 })
