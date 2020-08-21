@@ -16,7 +16,7 @@ export class AccountMongoRepository implements AddAccountRepository, LoadAccount
   async loadByCpf (cpf: string): Promise<AccountModel> {
     const accountCollection = MongoHelper.getCollection('accounts')
     const account = await accountCollection.findOne({cpf})
-    return new Promise(resolve => resolve(MongoHelper.map(account)))
+    return new Promise(resolve => resolve(account && MongoHelper.map(account)))
   }
 
 }
