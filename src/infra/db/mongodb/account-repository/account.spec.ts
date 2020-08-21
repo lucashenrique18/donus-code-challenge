@@ -48,4 +48,9 @@ describe('Account Mongo Repository', () => {
     expect(account.password).toBe('any_password')
   })
 
+  test('Should return null if loadByCpf fails', async () => {
+    const sut = new AccountMongoRepository()
+    const account = await sut.loadByCpf('any_cpf')
+    expect(account).toBeFalsy()
+  })
 })
