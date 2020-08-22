@@ -7,7 +7,7 @@ import { AccountMongoRepository } from '../../infra/db/mongodb/account-repositor
 export const makeSignUpController = (): SignUpController => {
   const salt = 12
   const cpfValidatorAdapter = new CpfValidatorAdapter()
-  const bcryptAdapter = new BcryptAdapter(12)
+  const bcryptAdapter = new BcryptAdapter(salt)
   const accountMongoRepository = new AccountMongoRepository()
   const dbAddAccount = new DbAddAccount(bcryptAdapter, accountMongoRepository, accountMongoRepository)
   return new SignUpController(cpfValidatorAdapter, dbAddAccount)

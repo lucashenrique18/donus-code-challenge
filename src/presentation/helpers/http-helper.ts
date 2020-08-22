@@ -16,6 +16,11 @@ export const serverError = (): HttpResponse => ({
   body: new ServerError()
 })
 
+export const unprocessable = (error: Error): HttpResponse => ({
+  statusCode: 422,
+  body: error
+})
+
 export const ok = (data: any): HttpResponse => ({
   statusCode: 200,
   body: data
