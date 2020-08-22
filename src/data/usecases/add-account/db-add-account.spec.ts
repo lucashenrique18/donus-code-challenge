@@ -29,14 +29,7 @@ const makeAddAccountRepository = (): AddAccountRepository => {
 const makeLoadAccountByCpfRepository = (): LoadAccountByCpfRepository => {
   class LoadAccountByCpfRepositoryStub implements LoadAccountByCpfRepository {
     async loadByCpf (cpf: string): Promise<AccountModel> {
-      const fakeAccount = {
-        id: 'valid_id',
-        name: 'valid_name',
-        cpf: 'valid_cpf',
-        password: 'hashed_password',
-        money: 0
-      }
-      return new Promise(resolve => resolve(fakeAccount))
+      return new Promise(resolve => resolve(null))
     }
   }
   return new LoadAccountByCpfRepositoryStub()
@@ -131,6 +124,26 @@ describe('DbAddAccount Usecase', () => {
       password: 'hashed_password',
       money: 0
     })
+  })
+
+  test('Should return null if LoadAccountByCpfRepository return not null', async () => {
+    const {sut, loadAccountByCpfRepositoryStub} = makeSut()
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve(
+      {
+        id: 'valid_id',
+        name: 'valid_name',
+        cpf: 'valid_cpf',
+        password: 'hashed_password',
+        money: 0
+      }
+    )))
+    const accountData = {
+      name: 'valid_name',
+      cpf: 'valid_cpf',
+      password: 'valid_password'
+    }
+    const account = await sut.add(accountData)
+    expect(account).toBeNull()
   })
 
   test('Should call LoadAccountByCpfRepository with correct cpf', async () => {
