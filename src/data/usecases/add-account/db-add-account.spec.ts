@@ -1,5 +1,5 @@
 import { DbAddAccount  } from './db-add-account'
-import { Encrypter, AddAccountModel, AddAccountRepository, AccountModel } from './db-add-account-protocols'
+import { Encrypter, AddAccountModel, AddAccountRepository, AccountModel, LoadAccountByCpfRepository } from './db-add-account-protocols'
 
 const makeEncrypter = (): Encrypter => {
   class EncrypterStub implements Encrypter {
@@ -26,20 +26,39 @@ const makeAddAccountRepository = (): AddAccountRepository => {
   return new AddAccountRepositoryStub()
 }
 
+const makeLoadAccountByCpfRepository = (): LoadAccountByCpfRepository => {
+  class LoadAccountByCpfRepositoryStub implements LoadAccountByCpfRepository {
+    async loadByCpf (cpf: string): Promise<AccountModel> {
+      const fakeAccount = {
+        id: 'valid_id',
+        name: 'valid_name',
+        cpf: 'valid_cpf',
+        password: 'hashed_password',
+        money: 0
+      }
+      return new Promise(resolve => resolve(fakeAccount))
+    }
+  }
+  return new LoadAccountByCpfRepositoryStub()
+}
+
 interface SutTypes {
   sut: DbAddAccount
   encrypterStub: Encrypter
   addAccountRepositoryStub: AddAccountRepository
+  loadAccountByCpfRepositoryStub: LoadAccountByCpfRepository
 }
 
 const makeSut = (): SutTypes => {
+  const loadAccountByCpfRepositoryStub = makeLoadAccountByCpfRepository()
   const encrypterStub = makeEncrypter()
   const addAccountRepositoryStub = makeAddAccountRepository()
-  const sut = new DbAddAccount(encrypterStub, addAccountRepositoryStub)
+  const sut = new DbAddAccount(encrypterStub, addAccountRepositoryStub, loadAccountByCpfRepositoryStub)
   return {
     sut,
     encrypterStub,
-    addAccountRepositoryStub
+    addAccountRepositoryStub,
+    loadAccountByCpfRepositoryStub
   }
 }
 
@@ -112,6 +131,18 @@ describe('DbAddAccount Usecase', () => {
       password: 'hashed_password',
       money: 0
     })
+  })
+
+  test('Should call LoadAccountByCpfRepository with correct cpf', async () => {
+    const {sut, loadAccountByCpfRepositoryStub} = makeSut()
+    const loadSpy = jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf')
+    const accountData = {
+      name: 'valid_name',
+      cpf: 'valid_cpf',
+      password: 'valid_password'
+    }
+    await sut.add(accountData)
+    expect(loadSpy).toHaveBeenCalledWith('valid_cpf')
   })
 
 })
