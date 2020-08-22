@@ -1,5 +1,5 @@
 import { SignUpController } from './signup'
-import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
+import { MissingParamError, InvalidParamError, ServerError, CpfInUseError } from '../../errors'
 import { CpfValidator, AccountModel, AddAccount, AddAccountModel } from './signup-protocols'
 
 interface SutTypes {
@@ -201,6 +201,22 @@ describe('SignUp Controller', () => {
       cpf: 'any_cpf',
       password: 'any_password'
     })
+  })
+
+  test('Should return 422 if AddAccount returns null', async () => {
+    const { sut, addAccountStub } = makeSut()
+    jest.spyOn(addAccountStub, 'add').mockReturnValueOnce(null)
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        cpf: 'any_cpf',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(422)
+    expect(httpResponse.body).toEqual(new CpfInUseError())
   })
 
   test('Should return 200 if valid data is provided', async () => {
