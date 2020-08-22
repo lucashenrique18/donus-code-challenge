@@ -9,6 +9,6 @@ export const makeSignUpController = (): SignUpController => {
   const cpfValidatorAdapter = new CpfValidatorAdapter()
   const bcryptAdapter = new BcryptAdapter(12)
   const accountMongoRepository = new AccountMongoRepository()
-  const dbAddAccount = new DbAddAccount(bcryptAdapter, accountMongoRepository)
+  const dbAddAccount = new DbAddAccount(bcryptAdapter, accountMongoRepository, accountMongoRepository)
   return new SignUpController(cpfValidatorAdapter, dbAddAccount)
 }
