@@ -92,6 +92,15 @@ describe('Deposit Account UseCase', () => {
     })
   })
 
+  test('Should throw if AccountMovimentationHistoryRepository save throws', async () => {
+    const { sut, accountMovimentationHistoryRepositoryStub } = makeSut()
+    jest.spyOn(accountMovimentationHistoryRepositoryStub, 'save').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.deposit(validDepositData)
+    await expect(promise).rejects.toThrow()
+  })
+
   test('Should return an account on success', async () => {
     const { sut } = makeSut()
     const account = await sut.deposit(validDepositData)
