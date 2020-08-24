@@ -174,7 +174,7 @@ describe('Movimentation Controller', () => {
 
   test('Should call LoadMovimentation with correct values', async () => {
     const { sut, loadMovimentationStub } = makeSut()
-    const addSpy = jest.spyOn(loadMovimentationStub, 'load')
+    const loadSpy = jest.spyOn(loadMovimentationStub, 'load')
     const httpRequest = {
       body: {
         cpf: 'any_cpf',
@@ -182,10 +182,26 @@ describe('Movimentation Controller', () => {
       }
     }
     await sut.handle(httpRequest)
-    expect(addSpy).toHaveBeenCalledWith({
+    expect(loadSpy).toHaveBeenCalledWith({
       cpf: 'any_cpf',
       password: 'any_password'
     })
+  })
+
+  test('Should return 500 if LoadMovimentation throws', async () => {
+    const { sut, loadMovimentationStub } = makeSut()
+    jest.spyOn(loadMovimentationStub, 'load').mockImplementationOnce(async () => {
+      return new Promise((resolve, reject) => reject(new Error()))
+    })
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password'
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 
 })
