@@ -1,14 +1,27 @@
 import { MovimentationController } from './movimentation'
-import { MissingParamError } from '../../errors'
+import { MissingParamError, InvalidParamError } from '../../errors'
+import { CpfValidator } from '../../protocols/cpf-validator'
 
 interface SutTypes {
   sut: MovimentationController
+  cpfValidatorStub: CpfValidator
+}
+
+const makeCpfValidator = (): CpfValidator => {
+  class CpfValidatorStub implements CpfValidator {
+    isValid (cpf: string): boolean {
+      return true
+    }
+  }
+  return new CpfValidatorStub()
 }
 
 const makeSut = (): SutTypes => {
-  const sut = new MovimentationController()
+  const cpfValidatorStub = makeCpfValidator()
+  const sut = new MovimentationController(cpfValidatorStub)
   return {
-    sut
+    sut,
+    cpfValidatorStub
   }
 }
 
@@ -35,6 +48,20 @@ describe('Movimentation Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamError('password'))
+  })
+
+  test('Should return 400 if an invalid cpf is provided ', async () => {
+    const { sut, cpfValidatorStub } = makeSut()
+    jest.spyOn(cpfValidatorStub, 'isValid').mockReturnValueOnce(false)
+    const httpRequest = {
+      body: {
+        cpf: 'invalid_cpf',
+        password: 'any_password'
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamError('cpf'))
   })
 
 })
