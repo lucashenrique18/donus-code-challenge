@@ -1,8 +1,5 @@
 import { DbMovimentation } from './db-movimentation'
-import { AccountMovimentationHistoryRepository } from "../../protocols/db/account/account-movimentation-history-repository"
-import { MovimentationModel } from "../../../domain/models/movimentation-model"
-import { LoadMovimentationsModel } from "../../../domain/usecases/movimentation/movimentation"
-import { LoadMovimentationRepository } from '../../protocols/db/account/load-movimentations-repository'
+import { LoadMovimentationRepository, LoadMovimentationModel } from '../../protocols/db/account/load-movimentations-repository'
 
 const validMovimentationData = {
   cpf: 'any_cpf',
@@ -15,8 +12,8 @@ const validMovimentationData = {
 
 const makeLoadMovimentationRepository = (): LoadMovimentationRepository => {
   class LoadMovimentationRepositoryStub implements LoadMovimentationRepository {
-    async loadMovimentations (cpf: string): Promise<MovimentationModel> {
-      return new Promise(resolve => resolve(validMovimentationData))
+    async loadMovimentations (cpf: string): Promise<Array<LoadMovimentationModel>> {
+      return new Promise(resolve => resolve([validMovimentationData]))
     }
   }
   return new LoadMovimentationRepositoryStub()
@@ -54,7 +51,7 @@ describe('Deposit Account UseCase', () => {
   test('Should return an movimentations on success', async () => {
     const { sut } = makeSut()
     const movimentations = await sut.load('any_cpf')
-    expect(movimentations).toEqual(validMovimentationData)
+    expect(movimentations[0]).toEqual(validMovimentationData)
   })
 
 })

@@ -21,7 +21,7 @@ export class MovimentationController implements Controller {
       if (!isAuth) {
         return unauthorized()
       }
-      const movimentations = await this.loadMovimentation.load({cpf, password})
+      const movimentations = await this.loadMovimentation.load(cpf)
       return ok(movimentations)
     } catch (error) {
       console.error(error)

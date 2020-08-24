@@ -4,7 +4,7 @@ import { LoadMovimentationRepository } from "../../protocols/db/account/load-mov
 
 export class DbMovimentation implements LoadMovimentation {
   constructor (private readonly accountMovimentationHistoryRepository: LoadMovimentationRepository) {}
-  async load (cpf: string): Promise<MovimentationModel> {
+  async load (cpf: string): Promise<Array<MovimentationModel>> {
     const movimentations = await this.accountMovimentationHistoryRepository.loadMovimentations(cpf)
     return movimentations
   }

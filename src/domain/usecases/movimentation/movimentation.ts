@@ -6,5 +6,5 @@ export interface LoadMovimentationsModel {
 }
 
 export interface LoadMovimentation {
-  load (cpf: string): Promise<MovimentationModel>
+  load (cpf: string): Promise<Array<MovimentationModel>>
 }

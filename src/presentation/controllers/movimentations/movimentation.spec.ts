@@ -1,4 +1,4 @@
-import { MovimentationController, CpfValidator, Authentication, LoadMovimentation, LoadMovimentationsModel, MovimentationModel } from './movimentation-protocol'
+import { MovimentationController, CpfValidator, Authentication, LoadMovimentation, MovimentationModel } from './movimentation-protocol'
 import { MissingParamError, InvalidParamError, ServerError, UnauthorizedError } from '../../errors'
 
 const fakeMovimentation = {
@@ -30,8 +30,8 @@ const makeAuthentication = (): Authentication => {
 
 const makeLoadMovimentation = (): LoadMovimentation => {
   class LoadMovimentationStub implements LoadMovimentation {
-    async load (cpf: string): Promise<MovimentationModel> {
-      return new Promise(resolve => resolve(fakeMovimentation))
+    async load (cpf: string): Promise<Array<MovimentationModel>> {
+      return new Promise(resolve => resolve([fakeMovimentation]))
     }
   }
   return new LoadMovimentationStub()
@@ -178,10 +178,7 @@ describe('Movimentation Controller', () => {
       }
     }
     await sut.handle(httpRequest)
-    expect(loadSpy).toHaveBeenCalledWith({
-      cpf: 'any_cpf',
-      password: 'any_password'
-    })
+    expect(loadSpy).toHaveBeenCalledWith('any_cpf')
   })
 
   test('Should return 500 if LoadMovimentation throws', async () => {
@@ -210,7 +207,7 @@ describe('Movimentation Controller', () => {
     }
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(200)
-    expect(httpResponse.body).toEqual(fakeMovimentation)
+    expect(httpResponse.body[0]).toEqual(fakeMovimentation)
   })
 
 })
