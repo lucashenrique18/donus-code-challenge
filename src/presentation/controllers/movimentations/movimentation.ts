@@ -1,9 +1,6 @@
-import { Controller, HttpRequest, HttpResponse } from "../../protocols";
-import { CpfValidator } from '../../protocols/cpf-validator'
-import { Authentication } from '../../../domain/usecases/authentication/authentication'
+import { CpfValidator, Authentication, LoadMovimentation, Controller, HttpResponse, HttpRequest } from './movimentation-protocol'
 import { badRequest, serverError, unauthorized, ok } from '../../helpers/http-helper'
 import { MissingParamError, InvalidParamError } from '../../errors'
-import { LoadMovimentation } from "../../../domain/usecases/movimentation/movimentation";
 
 export class MovimentationController implements Controller {
   constructor (private readonly cpfValidator: CpfValidator, private readonly authentication: Authentication, private readonly loadMovimentation: LoadMovimentation) {}

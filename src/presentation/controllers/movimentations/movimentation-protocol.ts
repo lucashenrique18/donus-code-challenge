@@ -1,0 +1,6 @@
+export * from '../../protocols'
+export * from '../../protocols/cpf-validator'
+export * from '../../../domain/usecases/movimentation/movimentation'
+export * from '../../../domain/models/movimentation-model'
+export * from '../../../domain/usecases/authentication/authentication'
+export * from './movimentation'

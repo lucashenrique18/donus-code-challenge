@@ -1,9 +1,5 @@
-import { MovimentationController } from './movimentation'
+import { MovimentationController, CpfValidator, Authentication, LoadMovimentation, LoadMovimentationsModel, MovimentationModel } from './movimentation-protocol'
 import { MissingParamError, InvalidParamError, ServerError, UnauthorizedError } from '../../errors'
-import { CpfValidator } from '../../protocols/cpf-validator'
-import { Authentication } from '../../../domain/usecases/authentication/authentication'
-import { LoadMovimentation, LoadMovimentationsModel } from '../../../domain/usecases/movimentation/movimentation'
-import { MovimentationModel } from '../../../domain/models/movimentation-model'
 
 const fakeMovimentation = {
   cpf: 'any_cpf',
