@@ -40,6 +40,9 @@ const makeAccountMovimentationHistoryRepository = (): AccountMovimentationHistor
     async saveMovimentation (movimentationData: MovimentationModel): Promise<MovimentationModel> {
       return new Promise(resolve => resolve(validMovimentationData))
     }
+    async loadMovimentations (): Promise<MovimentationModel> {
+      return new Promise(resolve => resolve(null))
+    }
   }
   return new AccountMovimentationHistoryRepositoryStub()
 }
