@@ -45,4 +45,12 @@ describe('Deposit Account UseCase', () => {
     await sut.load('any_cpf')
     expect(loadSpy).toHaveBeenCalledWith('any_cpf')
   })
+
+  test('Should throw if AccountMovimentationHistoryRepository throws', async () => {
+    const { sut, accountMovimentationHistoryRepositoryStub } = makeSut()
+    jest.spyOn(accountMovimentationHistoryRepositoryStub, 'loadMovimentations').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+    const promise = sut.load('any_cpf')
+    await expect(promise).rejects.toThrow()
+  })
+
 })
