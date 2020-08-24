@@ -1,7 +1,7 @@
 import { Controller, HttpRequest, HttpResponse } from "../../protocols";
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
-import { badRequest, serverError, unauthorized } from '../../helpers/http-helper'
+import { badRequest, serverError, unauthorized, ok } from '../../helpers/http-helper'
 import { MissingParamError, InvalidParamError } from '../../errors'
 import { LoadMovimentation } from "../../../domain/usecases/movimentation/movimentation";
 
@@ -24,7 +24,8 @@ export class MovimentationController implements Controller {
       if (!isAuth) {
         return unauthorized()
       }
-      await this.loadMovimentation.load({cpf, password})
+      const movimentations = await this.loadMovimentation.load({cpf, password})
+      return ok(movimentations)
     } catch (error) {
       console.error(error)
       return serverError()
