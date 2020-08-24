@@ -33,6 +33,21 @@ describe('Account Mongo Repository', () => {
     expect(account.password).toBe('any_password')
   })
 
+  test('Should return an MovimentationAccount on saveMovimentation success', async () => {
+    const sut = new AccountMongoRepository()
+    const account = await sut.saveMovimentation({
+      cpf: 'any_cpf',
+      movimentationType: 'any_movimentation',
+      data : {
+        value: 100
+      }
+    })
+    expect(account).toBeTruthy()
+    expect(account.cpf).toBe('any_cpf')
+    expect(account.movimentationType).toBe('any_movimentation')
+    expect(account.data.value).toBe(100)
+  })
+
   test('Should return an account on loadByCpf success', async () => {
     const sut = new AccountMongoRepository()
     await accountCollection.insertOne({
