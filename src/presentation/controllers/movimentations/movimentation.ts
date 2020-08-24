@@ -3,9 +3,10 @@ import { CpfValidator } from '../../protocols/cpf-validator'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
 import { badRequest, serverError, unauthorized } from '../../helpers/http-helper'
 import { MissingParamError, InvalidParamError } from '../../errors'
+import { LoadMovimentation } from "../../../domain/usecases/movimentation/movimentation";
 
 export class MovimentationController implements Controller {
-  constructor (private readonly cpfValidator: CpfValidator, private readonly authentication: Authentication) {}
+  constructor (private readonly cpfValidator: CpfValidator, private readonly authentication: Authentication, private readonly loadMovimentation: LoadMovimentation) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try{
       const requiredFields = ['cpf', 'password']
@@ -23,6 +24,7 @@ export class MovimentationController implements Controller {
       if (!isAuth) {
         return unauthorized()
       }
+      await this.loadMovimentation.load({cpf, password})
     } catch (error) {
       console.error(error)
       return serverError()

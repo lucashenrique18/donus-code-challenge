@@ -5,6 +5,6 @@ export interface LoadMovimentationsModel {
   password: string
 }
 
-export interface DepositAmount {
-  loadMovimentations (depositData: LoadMovimentationsModel): Promise<MovimentationModel>
+export interface LoadMovimentation {
+  load (accountData: LoadMovimentationsModel): Promise<MovimentationModel>
 }
