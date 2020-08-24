@@ -17,6 +17,13 @@ const validDepositData = {
   password: 'any_password',
   depositValue: validDeposit
 }
+const validMovimentationData = {
+  cpf: validDepositData.cpf,
+  movimentationType: 'deposit',
+  data: {
+    value: validDepositData.depositValue
+  }
+}
 
 const makeAlterMoneyAccountRepository = (): AlterMoneyAccountRepository => {
   class AlterMoneyAccountRepositoryStub implements AlterMoneyAccountRepository {
@@ -29,8 +36,8 @@ const makeAlterMoneyAccountRepository = (): AlterMoneyAccountRepository => {
 
 const makeAccountMovimentationHistoryRepository = (): AccountMovimentationHistoryRepository => {
   class AccountMovimentationHistoryRepositoryStub implements AccountMovimentationHistoryRepository {
-    save (movimentation: MovimentationModel): void {
-      null
+    async saveMovimentation (movimentationData: MovimentationModel): Promise<MovimentationModel> {
+      return new Promise(resolve => resolve(validMovimentationData))
     }
   }
   return new AccountMovimentationHistoryRepositoryStub()
@@ -74,27 +81,22 @@ describe('Deposit Account UseCase', () => {
     await expect(promise).rejects.toThrow()
   })
 
-  test('Should throw if AlterMoneyAccountRepository throws', async () => {
-    const { sut, alterMoneyAccountRepositoryStub } = makeSut()
-    jest.spyOn(alterMoneyAccountRepositoryStub, 'deposit').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
-    const promise = sut.deposit(validDepositData)
-    await expect(promise).rejects.toThrow()
-  })
-
-  test('Should call AccountMovimentationHistoryRepository save with correct values', async () => {
+  test('Should call AccountMovimentationHistoryRepository saveMovimentation with correct values', async () => {
     const {sut, accountMovimentationHistoryRepositoryStub} = makeSut()
-    const saveSpy = jest.spyOn(accountMovimentationHistoryRepositoryStub, 'save')
+    const saveSpy = jest.spyOn(accountMovimentationHistoryRepositoryStub, 'saveMovimentation')
     await sut.deposit(validDepositData)
     expect(saveSpy).toHaveBeenCalledWith({
       cpf: validDepositData.cpf,
       movimentationType: 'deposit',
-      value: validDepositData.depositValue
+      data: {
+        value: validDepositData.depositValue
+      }
     })
   })
 
-  test('Should throw if AccountMovimentationHistoryRepository save throws', async () => {
+  test('Should throw if AccountMovimentationHistoryRepository saveMovimentation throws', async () => {
     const { sut, accountMovimentationHistoryRepositoryStub } = makeSut()
-    jest.spyOn(accountMovimentationHistoryRepositoryStub, 'save').mockImplementationOnce(() => {
+    jest.spyOn(accountMovimentationHistoryRepositoryStub, 'saveMovimentation').mockImplementationOnce(() => {
       throw new Error()
     })
     const promise = sut.deposit(validDepositData)
