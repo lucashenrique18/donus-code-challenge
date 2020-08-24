@@ -3,5 +3,4 @@ import { LoadMovimentationsModel } from '../../../../domain/usecases/movimentati
 
 export interface AccountMovimentationHistoryRepository {
   saveMovimentation (movimentationData: MovimentationModel): Promise<MovimentationModel>
-  loadMovimentations (cpf: string): Promise<MovimentationModel>
 }
