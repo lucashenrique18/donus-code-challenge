@@ -1,7 +1,7 @@
 import { Controller, HttpRequest, HttpResponse } from "../../protocols";
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
-import { badRequest, serverError } from '../../helpers/http-helper'
+import { badRequest, serverError, unauthorized } from '../../helpers/http-helper'
 import { MissingParamError, InvalidParamError } from '../../errors'
 
 export class MovimentationController implements Controller {
@@ -19,7 +19,10 @@ export class MovimentationController implements Controller {
       if (!isValidCpf) {
         return badRequest(new InvalidParamError('cpf'))
       }
-      await this.authentication.auth(cpf, password)
+      const isAuth = await this.authentication.auth(cpf, password)
+      if (!isAuth) {
+        return unauthorized()
+      }
     } catch (error) {
       console.error(error)
       return serverError()
