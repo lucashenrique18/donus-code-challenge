@@ -1,10 +1,11 @@
 import { Controller, HttpRequest, HttpResponse } from "../../protocols";
 import { CpfValidator } from '../../protocols/cpf-validator'
+import { Authentication } from '../../../domain/usecases/authentication/authentication'
 import { badRequest, serverError } from '../../helpers/http-helper'
 import { MissingParamError, InvalidParamError } from '../../errors'
 
 export class MovimentationController implements Controller {
-  constructor (private readonly cpfValidator: CpfValidator) {}
+  constructor (private readonly cpfValidator: CpfValidator, private readonly authentication: Authentication) {}
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try{
       const requiredFields = ['cpf', 'password']
@@ -13,10 +14,12 @@ export class MovimentationController implements Controller {
           return badRequest(new MissingParamError(field))
         }
       }
-      const isValidCpf = this.cpfValidator.isValid(httpRequest.body.cpf)
+      const { cpf, password } = httpRequest.body
+      const isValidCpf = this.cpfValidator.isValid(cpf)
       if (!isValidCpf) {
         return badRequest(new InvalidParamError('cpf'))
       }
+      await this.authentication.auth(cpf, password)
     } catch (error) {
       console.error(error)
       return serverError()
