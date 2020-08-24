@@ -1,5 +1,5 @@
 import { MovimentationController } from './movimentation'
-import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
+import { MissingParamError, InvalidParamError, ServerError, UnauthorizedError } from '../../errors'
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
 
@@ -133,6 +133,20 @@ describe('Movimentation Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
+  })
+
+  test('Should return 401 if invalid credentials are provided', async () => {
+    const { sut, authenticationStub } = makeSut()
+    jest.spyOn(authenticationStub, 'auth').mockReturnValueOnce(new Promise(resolve => resolve(false)))
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password'
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(401)
+    expect(httpResponse.body).toEqual(new UnauthorizedError())
   })
 
 })
