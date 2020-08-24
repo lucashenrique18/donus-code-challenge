@@ -53,4 +53,10 @@ describe('Deposit Account UseCase', () => {
     await expect(promise).rejects.toThrow()
   })
 
+  test('Should return an movimentations on success', async () => {
+    const { sut } = makeSut()
+    const movimentations = await sut.load('any_cpf')
+    expect(movimentations).toEqual(validMovimentationData)
+  })
+
 })
