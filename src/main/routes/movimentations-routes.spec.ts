@@ -4,9 +4,11 @@ import { MongoHelper } from '../../infra/db/mongodb/helpers/mongo-helper'
 import { Collection } from 'mongodb'
 import { hash } from 'bcrypt'
 
+let movimentationsCollection: Collection
 let accountCollection: Collection
 
-describe('Deposit Routes', () => {
+describe('Movimentations Routes', () => {
+
   beforeAll(async () => {
     await MongoHelper.connect(process.env.MONGO_URL)
   })
@@ -16,6 +18,8 @@ describe('Deposit Routes', () => {
   })
 
   beforeEach(async () => {
+    movimentationsCollection = await MongoHelper.getCollection('movimentations')
+    await movimentationsCollection.deleteMany({})
     accountCollection = await MongoHelper.getCollection('accounts')
     await accountCollection.deleteMany({})
   })
@@ -27,23 +31,29 @@ describe('Deposit Routes', () => {
       cpf: '03256117937',
       password
     })
+    await movimentationsCollection.insertOne({
+      cpf: '03256117937',
+      type: 'deposit',
+      movimentation: {
+        value: 100
+      },
+      date: new Date(1466424490000)
+    })
     await request(app)
-      .post('/api/deposit')
+      .post('/api/movimentations')
       .send({
-        cpf: '032.561.179-37',
-        password: '123',
-        depositValue: 100
+        cpf: '03256117937',
+        password: '123'
       })
       .expect(200)
   })
 
   test('Should return 401 if cpf or password are incorrect/notexists', async () => {
     await request(app)
-      .post('/api/deposit')
+      .post('/api/movimentations')
       .send({
-        cpf: '032.561.179-37',
-        password: '123',
-        depositValue: 100
+        cpf: '03256117937',
+        password: '123'
       })
       .expect(401)
   })

@@ -3,9 +3,9 @@ import { MovimentationModel } from "../../../domain/models/movimentation-model";
 import { LoadMovimentationRepository } from "../../protocols/db/account/load-movimentations-repository";
 
 export class DbMovimentation implements LoadMovimentation {
-  constructor (private readonly accountMovimentationHistoryRepository: LoadMovimentationRepository) {}
+  constructor (private readonly loadMovimentationRepository: LoadMovimentationRepository) {}
   async load (cpf: string): Promise<Array<MovimentationModel>> {
-    const movimentations = await this.accountMovimentationHistoryRepository.loadMovimentations(cpf)
+    const movimentations = await this.loadMovimentationRepository.loadMovimentations(cpf)
     return movimentations
   }
 }

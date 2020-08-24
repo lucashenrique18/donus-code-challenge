@@ -21,12 +21,12 @@ export class DepositController implements Controller {
       if (depositValue <= 0) {
         return badRequest(new InvalidParamError('depositValue'))
       }
-      const isAuth = await this.authentication.auth(cpf, password)
+      const isAuth = await this.authentication.auth(cpf.replace(/([-.]*)/g, ''), password)
       if (!isAuth) {
         return unauthorized()
       }
       const deposit = await this.depositAmount.deposit({
-         cpf, password, depositValue
+         cpf: cpf.replace(/([-.]*)/g, ''), password, depositValue
       })
       return ok(deposit)
     } catch (error) {

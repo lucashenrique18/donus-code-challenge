@@ -17,11 +17,11 @@ export class MovimentationController implements Controller {
       if (!isValidCpf) {
         return badRequest(new InvalidParamError('cpf'))
       }
-      const isAuth = await this.authentication.auth(cpf, password)
+      const isAuth = await this.authentication.auth(cpf.replace(/([-.]*)/g, ''), password)
       if (!isAuth) {
         return unauthorized()
       }
-      const movimentations = await this.loadMovimentation.load(cpf)
+      const movimentations = await this.loadMovimentation.load(cpf.replace(/([-.]*)/g, ''))
       return ok(movimentations)
     } catch (error) {
       console.error(error)
