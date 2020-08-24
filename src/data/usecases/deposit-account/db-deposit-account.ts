@@ -12,7 +12,7 @@ export class DepositAccount implements DepositAmount {
       cpf: depositData.cpf,
       type: 'deposit',
       movimentation: {
-        value: depositData.depositValue
+        value: depositWithBonus
       },
       date: new Date()
     })

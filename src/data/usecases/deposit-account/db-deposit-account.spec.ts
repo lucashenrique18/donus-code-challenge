@@ -22,7 +22,7 @@ const validMovimentationData = {
   type: 'deposit',
   date: new Date(),
   movimentation: {
-    value: validDepositData.depositValue
+    value: depositWithBonus
   }
 }
 
@@ -91,7 +91,7 @@ describe('Deposit Account UseCase', () => {
       type: 'deposit',
       date: new Date(),
       movimentation: {
-        value: validDepositData.depositValue
+        value: depositWithBonus
       }
     })
   })
