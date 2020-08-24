@@ -1,7 +1,4 @@
-import { DepositAmount, DepositAmountModel } from "../../../domain/usecases/deposit-amount/deposit-amount";
-import { AlterMoneyAccountRepository } from "../../protocols/db/account/alter-money-account-repository";
-import { AccountMovimentationHistoryRepository } from '../../protocols/db/account/account-movimentation-history-repository'
-import { DepositModel } from "../../../domain/models/deposit-model";
+import { DepositAmount, DepositAmountModel, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository, DepositModel } from "./db-deposit-account-protocol";
 
 export class DepositAccount implements DepositAmount {
   constructor (private readonly alterMoneyAccountRepository: AlterMoneyAccountRepository, private readonly accountMovimentationHistoryRepository: AccountMovimentationHistoryRepository) {}

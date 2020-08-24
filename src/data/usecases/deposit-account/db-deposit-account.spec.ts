@@ -1,9 +1,4 @@
-import { DepositAccount } from './db-deposit-account'
-import { DepositModel } from "../../../domain/models/deposit-model"
-import { AlterMoneyAccountRepository } from "../../protocols/db/account/alter-money-account-repository";
-import { AccountMovimentationHistoryRepository } from "../../protocols/db/account/account-movimentation-history-repository";
-import { DepositAmountModel } from '../../../domain/usecases/deposit-amount/deposit-amount'
-import { MovimentationModel } from '../../../domain/models/movimentation-model';
+import { DepositAccount, DepositAmountModel, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository, DepositModel, MovimentationModel } from "./db-deposit-account-protocol";
 
 const validDeposit = 100
 const depositWithBonus = validDeposit+(validDeposit*0.05)
@@ -88,11 +83,12 @@ describe('Deposit Account UseCase', () => {
   test('Should call AccountMovimentationHistoryRepository saveMovimentation with correct values', async () => {
     const {sut, accountMovimentationHistoryRepositoryStub} = makeSut()
     const saveSpy = jest.spyOn(accountMovimentationHistoryRepositoryStub, 'saveMovimentation')
+    const date = new Date()
     await sut.deposit(validDepositData)
     expect(saveSpy).toHaveBeenCalledWith({
       cpf: validDepositData.cpf,
       type: 'deposit',
-      date: new Date(),
+      date: date,
       movimentation: {
         value: depositWithBonus
       }
