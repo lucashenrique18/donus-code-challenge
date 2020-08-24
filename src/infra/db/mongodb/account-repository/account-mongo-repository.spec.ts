@@ -37,15 +37,16 @@ describe('Account Mongo Repository', () => {
     const sut = new AccountMongoRepository()
     const account = await sut.saveMovimentation({
       cpf: 'any_cpf',
-      movimentationType: 'any_movimentation',
-      data : {
+      type: 'any_movimentation',
+      movimentation : {
         value: 100
-      }
+      },
+      date: new Date()
     })
     expect(account).toBeTruthy()
     expect(account.cpf).toBe('any_cpf')
-    expect(account.movimentationType).toBe('any_movimentation')
-    expect(account.data.value).toBe(100)
+    expect(account.type).toBe('any_movimentation')
+    expect(account.movimentation.value).toBe(100)
   })
 
   test('Should return an account on loadByCpf success', async () => {

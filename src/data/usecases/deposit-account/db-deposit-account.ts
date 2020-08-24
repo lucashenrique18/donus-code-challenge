@@ -10,10 +10,11 @@ export class DepositAccount implements DepositAmount {
     const depositWithBonus = depositData.depositValue+(depositData.depositValue*0.05)
     await this.accountMovimentationHistoryRepository.saveMovimentation({
       cpf: depositData.cpf,
-      movimentationType: 'deposit',
-      data: {
+      type: 'deposit',
+      movimentation: {
         value: depositData.depositValue
-      }
+      },
+      date: new Date()
     })
     return await this.alterMoneyAccountRepository.deposit(Object.assign({}, depositData, { depositValue: depositWithBonus}))
   }

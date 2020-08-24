@@ -38,11 +38,12 @@ export class AccountMongoRepository implements AddAccountRepository, LoadAccount
   async saveMovimentation (movimentationData: MovimentationModel): Promise<MovimentationModel> {
     const accountCollection = await MongoHelper.getCollection('movimentations')
     const result = await accountCollection.insertOne(movimentationData)
-    const { cpf, movimentationType, data} = result.ops[0]
+    const { cpf, type, movimentation, date } = result.ops[0]
     return new Promise(resolve => resolve({
       cpf,
-      movimentationType,
-      data
+      type,
+      movimentation,
+      date
     }))
   }
 

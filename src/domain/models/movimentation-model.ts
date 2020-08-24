@@ -1,8 +1,9 @@
 export interface MovimentationModel {
   cpf: string
-  movimentationType: string
-  data: {
+  type: string
+  movimentation: {
     value: number
     beneficiary?: string
   }
+  date: Date
 }

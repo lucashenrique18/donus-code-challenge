@@ -19,8 +19,9 @@ const validDepositData = {
 }
 const validMovimentationData = {
   cpf: validDepositData.cpf,
-  movimentationType: 'deposit',
-  data: {
+  type: 'deposit',
+  date: new Date(),
+  movimentation: {
     value: validDepositData.depositValue
   }
 }
@@ -87,8 +88,9 @@ describe('Deposit Account UseCase', () => {
     await sut.deposit(validDepositData)
     expect(saveSpy).toHaveBeenCalledWith({
       cpf: validDepositData.cpf,
-      movimentationType: 'deposit',
-      data: {
+      type: 'deposit',
+      date: new Date(),
+      movimentation: {
         value: validDepositData.depositValue
       }
     })
