@@ -28,6 +28,7 @@ export class AccountMongoRepository implements AddAccountRepository, LoadAccount
     const accountCollection = await MongoHelper.getCollection('accounts')
     await accountCollection.updateOne({cpf: depositData.cpf}, {$inc: {money: depositData.depositValue}})
     const account = await accountCollection.findOne({cpf: depositData.cpf})
+    await this.saveMovimentation({cpf: depositData.cpf, movimentationType: 'deposit', data: {value: depositData.depositValue}})
     return new Promise(resolve => resolve({
       name: account.name,
       cpf: account.cpf,
