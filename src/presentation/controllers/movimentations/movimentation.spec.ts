@@ -204,4 +204,17 @@ describe('Movimentation Controller', () => {
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
+  test('Should return 200 if valid data is provided', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password'
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(200)
+    expect(httpResponse.body).toEqual(fakeMovimentation)
+  })
+
 })
