@@ -6,8 +6,10 @@ import { LoadAccountByCpfRepository } from '../../../../data/protocols/db/accoun
 import { AlterMoneyAccountRepository } from '../../../../data/protocols/db/account/alter-money-account-repository'
 import { DepositAmountModel } from '../../../../domain/usecases/deposit-amount/deposit-amount'
 import { DepositModel } from '../../../../domain/models/deposit-model'
+import { MovimentationModel } from '../../../../domain/models/movimentation-model'
+import { AccountMovimentationHistoryRepository } from '../../../../data/protocols/db/account/account-movimentation-history-repository'
 
-export class AccountMongoRepository implements AddAccountRepository, LoadAccountByCpfRepository, AlterMoneyAccountRepository {
+export class AccountMongoRepository implements AddAccountRepository, LoadAccountByCpfRepository, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository {
 
   async add (accountData: AddAccountModel): Promise<AccountModel>{
     const accountCollection = await MongoHelper.getCollection('accounts')
@@ -26,7 +28,22 @@ export class AccountMongoRepository implements AddAccountRepository, LoadAccount
     const accountCollection = await MongoHelper.getCollection('accounts')
     await accountCollection.updateOne({cpf: depositData.cpf}, {$inc: {money: depositData.depositValue}})
     const account = await accountCollection.findOne({cpf: depositData.cpf})
-    return {name: account.name, cpf: account.cpf, depositValue: depositData.depositValue}
+    return new Promise(resolve => resolve({
+      name: account.name,
+      cpf: account.cpf,
+      depositValue: depositData.depositValue
+    }))
+  }
+
+  async saveMovimentation (movimentationData: MovimentationModel): Promise<MovimentationModel> {
+    const accountCollection = await MongoHelper.getCollection('movimentations')
+    const result = await accountCollection.insertOne(movimentationData)
+    const { cpf, movimentationType, data} = result.ops[0]
+    return new Promise(resolve => resolve({
+      cpf,
+      movimentationType,
+      data
+    }))
   }
 
 }
