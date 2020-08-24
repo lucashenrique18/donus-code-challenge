@@ -8,7 +8,7 @@ import { DepositAccount } from '../../data/usecases/deposit-account/db-deposit-a
 export const makeDepositController = (): DepositController => {
   const salt = 12
   const loadByCpfAndAlterMoneyAccountRepository = new AccountMongoRepository()
-  const depositAmount = new DepositAccount(loadByCpfAndAlterMoneyAccountRepository)
+  const depositAmount = new DepositAccount(loadByCpfAndAlterMoneyAccountRepository, loadByCpfAndAlterMoneyAccountRepository)
   const hashComparer = new BcryptAdapter(salt)
   const dbAuthentication = new DbAuthentication(loadByCpfAndAlterMoneyAccountRepository, hashComparer)
   const cpfValidatorAdapter = new CpfValidatorAdapter()
