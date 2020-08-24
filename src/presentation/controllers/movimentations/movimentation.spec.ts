@@ -30,7 +30,7 @@ const makeAuthentication = (): Authentication => {
 
 const makeLoadMovimentation = (): LoadMovimentation => {
   class LoadMovimentationStub implements LoadMovimentation {
-    async load (accountData: LoadMovimentationsModel): Promise<MovimentationModel> {
+    async load (cpf: string): Promise<MovimentationModel> {
       return new Promise(resolve => resolve(fakeMovimentation))
     }
   }
