@@ -11,6 +11,10 @@ import { AccountMovimentationHistoryRepository } from '../../../../data/protocol
 
 export class AccountMongoRepository implements AddAccountRepository, LoadAccountByCpfRepository, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository {
 
+  loadMovimentations(cpf: string): Promise<MovimentationModel> {
+    throw new Error("Method not implemented.")
+  }
+
   async add (accountData: AddAccountModel): Promise<AccountModel>{
     const accountCollection = await MongoHelper.getCollection('accounts')
     const result = await accountCollection.insertOne(accountData)
