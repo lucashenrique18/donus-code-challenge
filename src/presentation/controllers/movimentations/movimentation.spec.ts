@@ -2,11 +2,16 @@ import { MovimentationController } from './movimentation'
 import { MissingParamError, InvalidParamError, ServerError, UnauthorizedError } from '../../errors'
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
+import { LoadMovimentation, LoadMovimentationsModel } from '../../../domain/usecases/movimentation/movimentation'
+import { MovimentationModel } from '../../../domain/models/movimentation-model'
 
-interface SutTypes {
-  sut: MovimentationController
-  cpfValidatorStub: CpfValidator
-  authenticationStub: Authentication
+const fakeMovimentation = {
+  cpf: 'any_cpf',
+  type: 'any_type',
+  date: new Date(),
+  movimentation: {
+    value: 100
+  }
 }
 
 const makeCpfValidator = (): CpfValidator => {
@@ -27,14 +32,32 @@ const makeAuthentication = (): Authentication => {
   return new AuthenticationStub()
 }
 
+const makeLoadMovimentation = (): LoadMovimentation => {
+  class LoadMovimentationStub implements LoadMovimentation {
+    async load (accountData: LoadMovimentationsModel): Promise<MovimentationModel> {
+      return new Promise(resolve => resolve(fakeMovimentation))
+    }
+  }
+  return new LoadMovimentationStub()
+}
+
+interface SutTypes {
+  sut: MovimentationController
+  cpfValidatorStub: CpfValidator
+  authenticationStub: Authentication
+  loadMovimentationStub: LoadMovimentation
+}
+
 const makeSut = (): SutTypes => {
   const cpfValidatorStub = makeCpfValidator()
   const authenticationStub = makeAuthentication()
-  const sut = new MovimentationController(cpfValidatorStub, authenticationStub)
+  const loadMovimentationStub = makeLoadMovimentation()
+  const sut = new MovimentationController(cpfValidatorStub, authenticationStub, loadMovimentationStub)
   return {
     sut,
     cpfValidatorStub,
-    authenticationStub
+    authenticationStub,
+    loadMovimentationStub
   }
 }
 
@@ -147,6 +170,22 @@ describe('Movimentation Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(401)
     expect(httpResponse.body).toEqual(new UnauthorizedError())
+  })
+
+  test('Should call LoadMovimentation with correct values', async () => {
+    const { sut, loadMovimentationStub } = makeSut()
+    const addSpy = jest.spyOn(loadMovimentationStub, 'load')
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password'
+      }
+    }
+    await sut.handle(httpRequest)
+    expect(addSpy).toHaveBeenCalledWith({
+      cpf: 'any_cpf',
+      password: 'any_password'
+    })
   })
 
 })
