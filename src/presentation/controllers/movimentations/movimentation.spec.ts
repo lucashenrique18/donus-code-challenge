@@ -64,4 +64,17 @@ describe('Movimentation Controller', () => {
     expect(httpResponse.body).toEqual(new InvalidParamError('cpf'))
   })
 
+  test('Should call CpfValidator with correct cpf', async () => {
+    const { sut, cpfValidatorStub } = makeSut()
+    const isValidSpy = jest.spyOn(cpfValidatorStub, 'isValid')
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password'
+      }
+    }
+    await sut.handle(httpRequest)
+    expect(isValidSpy).toHaveBeenCalledWith('any_cpf')
+  })
+
 })
