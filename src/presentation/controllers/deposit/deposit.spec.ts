@@ -36,8 +36,8 @@ const makeCpfValidator = (): CpfValidator => {
 
 interface SutTypes {
   sut: DepositController
-  cpfValidatorStub: CpfValidator,
-  depositAmountStub: DepositAmount,
+  cpfValidatorStub: CpfValidator
+  depositAmountStub: DepositAmount
   authenticationStub: Authentication
 }
 
