@@ -1,10 +1,12 @@
 import { MovimentationController } from './movimentation'
 import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
 import { CpfValidator } from '../../protocols/cpf-validator'
+import { Authentication } from '../../../domain/usecases/authentication/authentication'
 
 interface SutTypes {
   sut: MovimentationController
   cpfValidatorStub: CpfValidator
+  authenticationStub: Authentication
 }
 
 const makeCpfValidator = (): CpfValidator => {
@@ -16,12 +18,23 @@ const makeCpfValidator = (): CpfValidator => {
   return new CpfValidatorStub()
 }
 
+const makeAuthentication = (): Authentication => {
+  class AuthenticationStub implements Authentication {
+    async auth (cpf: string, password: string): Promise<boolean> {
+      return true
+    }
+  }
+  return new AuthenticationStub()
+}
+
 const makeSut = (): SutTypes => {
   const cpfValidatorStub = makeCpfValidator()
-  const sut = new MovimentationController(cpfValidatorStub)
+  const authenticationStub = makeAuthentication()
+  const sut = new MovimentationController(cpfValidatorStub, authenticationStub)
   return {
     sut,
-    cpfValidatorStub
+    cpfValidatorStub,
+    authenticationStub
   }
 }
 
@@ -91,6 +104,19 @@ describe('Movimentation Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
+  })
+
+  test('Should call Authentication with correct values', async () => {
+    const { sut, authenticationStub } = makeSut()
+    const authSpy = jest.spyOn(authenticationStub, 'auth')
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password'
+      }
+    }
+    await sut.handle(httpRequest)
+    expect(authSpy).toHaveBeenCalledWith('any_cpf', 'any_password')
   })
 
 })
