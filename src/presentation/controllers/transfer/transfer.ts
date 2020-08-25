@@ -2,10 +2,11 @@ import { MissingParamError, InvalidParamError } from '../../errors'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { badRequest, serverError } from '../../helpers/http-helper'
 import { CpfValidator } from '../../protocols/cpf-validator'
+import { Authentication } from '../../../domain/usecases/authentication/authentication'
 
 export class TransferController implements Controller {
 
-  constructor (private readonly cpfValidator: CpfValidator) {}
+  constructor (private readonly cpfValidator: CpfValidator, private readonly authentication: Authentication) {}
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
@@ -27,6 +28,7 @@ export class TransferController implements Controller {
       if (value <= 0) {
         return badRequest(new InvalidParamError('value'))
       }
+      await this.authentication.auth(cpf.replace(/([-.]*)/g, ''), password)
 
     } catch (error) {
       console.error(error)
