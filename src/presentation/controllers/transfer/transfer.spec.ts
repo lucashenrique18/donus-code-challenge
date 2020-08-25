@@ -16,7 +16,7 @@ const makeTransferMoney = (): TransferMoney => {
         beneficiaryCpf: 'valid_beneficiary_cpf',
         value: validValue
       }
-      return new Promise(resolve => resolve(fakeTransfer))
+      return new Promise(resolve => resolve(null))
     }
   }
   return new TransferMoneyStub()
@@ -283,6 +283,38 @@ describe('Transfer Controller', () => {
       beneficiaryCpf: 'valid_beneficiary_cpf',
       value: validValue
     })
+  })
+
+  test('Should return 400 if TransferMoney returns null', async () => {
+    const { sut, transferMoneyStub } = makeSut()
+    jest.spyOn(transferMoneyStub, 'transfer').mockReturnValueOnce(null)
+    const httpRequest = {
+      body: {
+        cpf: 'valid_cpf',
+        password: 'valid_password',
+        beneficiaryCpf: 'valid_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamError('beneficiaryCpf'))
+  })
+
+  test('Should return 400 if TransferMoney returns undefined', async () => {
+    const { sut, transferMoneyStub } = makeSut()
+    jest.spyOn(transferMoneyStub, 'transfer').mockReturnValueOnce(undefined)
+    const httpRequest = {
+      body: {
+        cpf: 'valid_cpf',
+        password: 'valid_password',
+        beneficiaryCpf: 'valid_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamError('value'))
   })
 
 })
