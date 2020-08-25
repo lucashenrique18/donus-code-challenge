@@ -265,4 +265,24 @@ describe('Transfer Controller', () => {
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
+  test('Should call TransferMoney with correct values', async () => {
+    const { sut, transferMoneyStub } = makeSut()
+    const transferSpy = jest.spyOn(transferMoneyStub, 'transfer')
+    const httpRequest = {
+      body: {
+        cpf: 'valid_cpf',
+        password: 'valid_password',
+        beneficiaryCpf: 'valid_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    await sut.handle(httpRequest)
+    expect(transferSpy).toHaveBeenCalledWith({
+      cpf: 'valid_cpf',
+      password: 'valid_password',
+      beneficiaryCpf: 'valid_beneficiary_cpf',
+      value: validValue
+    })
+  })
+
 })
