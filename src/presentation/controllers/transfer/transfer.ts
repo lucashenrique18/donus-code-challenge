@@ -19,6 +19,10 @@ export class TransferController implements Controller {
     if (!isValidCpf) {
       return badRequest(new InvalidParamError('cpf'))
     }
+    const isValidBeneficiaryCpf = this.cpfValidator.isValid(beneficiaryCpf)
+    if (!isValidBeneficiaryCpf) {
+      return badRequest(new InvalidParamError('beneficiaryCpf'))
+    }
   }
 
 }
