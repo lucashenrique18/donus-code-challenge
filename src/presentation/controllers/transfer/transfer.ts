@@ -3,10 +3,11 @@ import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { badRequest, serverError, unauthorized } from '../../helpers/http-helper'
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
+import { TransferMoney } from '../../../domain/usecases/transfer-money/transfer-money'
 
 export class TransferController implements Controller {
 
-  constructor (private readonly cpfValidator: CpfValidator, private readonly authentication: Authentication) {}
+  constructor (private readonly cpfValidator: CpfValidator, private readonly authentication: Authentication, private readonly transferMoney: TransferMoney) {}
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
@@ -32,7 +33,9 @@ export class TransferController implements Controller {
       if (!isAuth) {
         return unauthorized()
       }
-
+      await this.transferMoney.transfer({
+        cpf: cpf.replace(/([-.]*)/g, ''), password, beneficiaryCpf, value
+      })
     } catch (error) {
       console.error(error)
       return serverError()
