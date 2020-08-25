@@ -23,6 +23,9 @@ export class TransferController implements Controller {
     if (!isValidBeneficiaryCpf) {
       return badRequest(new InvalidParamError('beneficiaryCpf'))
     }
+    if (value <= 0) {
+      return badRequest(new InvalidParamError('value'))
+    }
   }
 
 }
