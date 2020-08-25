@@ -33,9 +33,15 @@ export class TransferController implements Controller {
       if (!isAuth) {
         return unauthorized()
       }
-      await this.transferMoney.transfer({
+      const transfer = await this.transferMoney.transfer({
         cpf: cpf.replace(/([-.]*)/g, ''), password, beneficiaryCpf, value
       })
+      if (transfer === null) {
+        return badRequest(new InvalidParamError('beneficiaryCpf'))
+      }
+      if (transfer === undefined) {
+        return badRequest(new InvalidParamError('value'))
+      }
     } catch (error) {
       console.error(error)
       return serverError()
