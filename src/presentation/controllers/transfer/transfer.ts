@@ -1,6 +1,6 @@
 import { MissingParamError, InvalidParamError } from '../../errors'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
-import { badRequest, serverError, unauthorized } from '../../helpers/http-helper'
+import { badRequest, serverError, unauthorized, ok } from '../../helpers/http-helper'
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
 import { TransferMoney } from '../../../domain/usecases/transfer-money/transfer-money'
@@ -42,6 +42,7 @@ export class TransferController implements Controller {
       if (transfer === undefined) {
         return badRequest(new InvalidParamError('value'))
       }
+      return ok(transfer)
     } catch (error) {
       console.error(error)
       return serverError()
