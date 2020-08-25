@@ -16,7 +16,7 @@ const makeTransferMoney = (): TransferMoney => {
         beneficiaryCpf: 'valid_beneficiary_cpf',
         value: validValue
       }
-      return new Promise(resolve => resolve(null))
+      return new Promise(resolve => resolve(fakeTransfer))
     }
   }
   return new TransferMoneyStub()
@@ -315,6 +315,26 @@ describe('Transfer Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamError('value'))
+  })
+
+  test('Should return 200 if valid data is provided', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        cpf: 'valid_cpf',
+        password: 'valid_password',
+        beneficiaryCpf: 'valid_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(200)
+    expect(httpResponse.body).toEqual({
+      name: 'valid_name',
+      cpf: 'valid_cpf',
+      beneficiaryCpf: 'valid_beneficiary_cpf',
+      value: validValue
+    })
   })
 
 })
