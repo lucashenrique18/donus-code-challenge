@@ -1,4 +1,4 @@
-import { MissingParamError, InvalidParamError } from '../../errors'
+import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
 import { TransferController } from './transfer'
 import { CpfValidator } from '../../protocols/cpf-validator'
 
@@ -132,13 +132,31 @@ describe('Transfer Controller', () => {
     expect(isValidSpy).toHaveBeenCalledWith('any_beneficiary_cpf')
   })
 
+  test('Should return 500 if CpfValidator throws', async () => {
+    const { sut, cpfValidatorStub } = makeSut()
+    jest.spyOn(cpfValidatorStub, 'isValid').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        beneficiaryCpf: 'any_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
   test('Should return 400 if an invalid value is provided ', async () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
         cpf: 'any_cpf',
         password: 'any_password',
-        beneficiaryCpf: 'valid_beneficiary_cpf',
+        beneficiaryCpf: 'any_beneficiary_cpf',
         value: -100
       }
     }
