@@ -123,13 +123,28 @@ describe('Transfer Controller', () => {
       body: {
         cpf: 'any_cpf',
         password: 'any_password',
-        beneficiaryCpf: 'valid_beneficiary_cpf',
+        beneficiaryCpf: 'any_beneficiary_cpf',
         value: validValue
       }
     }
     await sut.handle(httpRequest)
     expect(isValidSpy).toHaveBeenCalledWith('any_cpf')
-    expect(isValidSpy).toHaveBeenCalledWith('valid_beneficiary_cpf')
+    expect(isValidSpy).toHaveBeenCalledWith('any_beneficiary_cpf')
+  })
+
+  test('Should return 400 if an invalid value is provided ', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        beneficiaryCpf: 'valid_beneficiary_cpf',
+        value: -100
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamError('value'))
   })
 
 })
