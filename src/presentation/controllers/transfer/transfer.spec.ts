@@ -1,8 +1,18 @@
 import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
 import { TransferController } from './transfer'
 import { CpfValidator } from '../../protocols/cpf-validator'
+import { Authentication } from '../../../domain/usecases/authentication/authentication'
 
 const validValue = 100
+
+const makeAuthentication = (): Authentication => {
+  class AuthenticationStub implements Authentication {
+    async auth (cpf: string, password: string): Promise<boolean> {
+      return true
+    }
+  }
+  return new AuthenticationStub()
+}
 
 const makeCpfValidator = (): CpfValidator => {
   class CpfValidatorStub implements CpfValidator {
@@ -16,14 +26,17 @@ const makeCpfValidator = (): CpfValidator => {
 interface SutTypes {
   sut: TransferController
   cpfValidatorStub: CpfValidator
+  authenticationStub: Authentication
 }
 
 const makeSut = (): SutTypes => {
   const cpfValidatorStub = makeCpfValidator()
-  const sut = new TransferController(cpfValidatorStub)
+  const authenticationStub = makeAuthentication()
+  const sut = new TransferController(cpfValidatorStub, authenticationStub)
   return {
     sut,
-    cpfValidatorStub
+    cpfValidatorStub,
+    authenticationStub
   }
 }
 
@@ -163,6 +176,21 @@ describe('Transfer Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamError('value'))
+  })
+
+  test('Should call Authentication with correct values', async () => {
+    const { sut, authenticationStub } = makeSut()
+    const authSpy = jest.spyOn(authenticationStub, 'auth')
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        beneficiaryCpf: 'any_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    await sut.handle(httpRequest)
+    expect(authSpy).toHaveBeenCalledWith('any_cpf', 'any_password')
   })
 
 })
