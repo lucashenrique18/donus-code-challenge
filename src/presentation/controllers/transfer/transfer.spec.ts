@@ -2,8 +2,25 @@ import { MissingParamError, InvalidParamError, ServerError, UnauthorizedError } 
 import { TransferController } from './transfer'
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
+import { TransferMoney, TransferModel } from '../../../domain/usecases/transfer-money/transfer-money'
+import { TransferMoneyModel } from '../../../domain/models/transfer-money-model'
 
 const validValue = 100
+
+const makeTransferMoney = (): TransferMoney => {
+  class TransferMoneyStub implements TransferMoney {
+    async transfer (transferMoney: TransferModel): Promise<TransferMoneyModel> {
+      const fakeTransfer = {
+        name: 'valid_name',
+        cpf: 'valid_cpf',
+        beneficiaryCpf: 'valid_beneficiary_cpf',
+        value: validValue
+      }
+      return new Promise(resolve => resolve(fakeTransfer))
+    }
+  }
+  return new TransferMoneyStub()
+}
 
 const makeAuthentication = (): Authentication => {
   class AuthenticationStub implements Authentication {
@@ -27,16 +44,19 @@ interface SutTypes {
   sut: TransferController
   cpfValidatorStub: CpfValidator
   authenticationStub: Authentication
+  transferMoneyStub: TransferMoney
 }
 
 const makeSut = (): SutTypes => {
   const cpfValidatorStub = makeCpfValidator()
   const authenticationStub = makeAuthentication()
-  const sut = new TransferController(cpfValidatorStub, authenticationStub)
+  const transferMoneyStub = makeTransferMoney()
+  const sut = new TransferController(cpfValidatorStub, authenticationStub, transferMoneyStub)
   return {
     sut,
     cpfValidatorStub,
-    authenticationStub
+    authenticationStub,
+    transferMoneyStub
   }
 }
 
@@ -212,6 +232,24 @@ describe('Transfer Controller', () => {
   test('Should return 500 if Authentication throws', async () => {
     const { sut, authenticationStub } = makeSut()
     jest.spyOn(authenticationStub, 'auth').mockImplementationOnce(async () => {
+      return new Promise((resolve, reject) => reject(new Error()))
+    })
+    const httpRequest = {
+      body: {
+        cpf: 'invalid_cpf',
+        password: 'any_password',
+        beneficiaryCpf: 'any_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
+  test('Should return 500 if TransferMoney throws', async () => {
+    const { sut, transferMoneyStub } = makeSut()
+    jest.spyOn(transferMoneyStub, 'transfer').mockImplementationOnce(async () => {
       return new Promise((resolve, reject) => reject(new Error()))
     })
     const httpRequest = {
