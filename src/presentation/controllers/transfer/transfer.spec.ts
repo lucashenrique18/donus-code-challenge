@@ -1,4 +1,4 @@
-import { MissingParamError, InvalidParamError, ServerError } from '../../errors'
+import { MissingParamError, InvalidParamError, ServerError, UnauthorizedError } from '../../errors'
 import { TransferController } from './transfer'
 import { CpfValidator } from '../../protocols/cpf-validator'
 import { Authentication } from '../../../domain/usecases/authentication/authentication'
@@ -191,6 +191,22 @@ describe('Transfer Controller', () => {
     }
     await sut.handle(httpRequest)
     expect(authSpy).toHaveBeenCalledWith('any_cpf', 'any_password')
+  })
+
+  test('Should return 401 if invalid credentials are provided', async () => {
+    const { sut, authenticationStub } = makeSut()
+    jest.spyOn(authenticationStub, 'auth').mockReturnValueOnce(new Promise(resolve => resolve(false)))
+    const httpRequest = {
+      body: {
+        cpf: 'invalid_cpf',
+        password: 'any_password',
+        beneficiaryCpf: 'any_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(401)
+    expect(httpResponse.body).toEqual(new UnauthorizedError())
   })
 
 })
