@@ -33,7 +33,7 @@ describe('Transfer Controller', () => {
     const httpRequest = {
       body: {
         password: 'any_password',
-        beneficiaryCpf: 'any_beneficiary',
+        beneficiaryCpf: 'any_beneficiary_cpf',
         value: validValue
       }
     }
@@ -47,7 +47,7 @@ describe('Transfer Controller', () => {
     const httpRequest = {
       body: {
         cpf: 'any_cpf',
-        beneficiaryCpf: 'any_beneficiary',
+        beneficiaryCpf: 'any_beneficiary_cpf',
         value: validValue
       }
     }
@@ -76,7 +76,7 @@ describe('Transfer Controller', () => {
       body: {
         cpf: 'any_cpf',
         password: 'any_password',
-        beneficiaryCpf: 'any_beneficiary'
+        beneficiaryCpf: 'any_beneficiary_cpf'
       }
     }
     const httpResponse = await sut.handle(httpRequest)
@@ -89,7 +89,7 @@ describe('Transfer Controller', () => {
     jest.spyOn(cpfValidatorStub, 'isValid').mockReturnValueOnce(false)
     const httpRequest = {
       body: {
-        cpf: 'any_cpf',
+        cpf: 'invalid_cpf',
         password: 'any_password',
         beneficiaryCpf: 'any_beneficiary',
         value: validValue
@@ -98,6 +98,22 @@ describe('Transfer Controller', () => {
     const httpResponse = await sut.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamError('cpf'))
+  })
+
+  test('Should return 400 if an invalid beneficiaryCpf is provided ', async () => {
+    const { sut, cpfValidatorStub } = makeSut()
+    jest.spyOn(cpfValidatorStub, 'isValid').mockReturnValueOnce(true).mockReturnValueOnce(false)
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        beneficiaryCpf: 'invalid_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamError('beneficiaryCpf'))
   })
 
 })
