@@ -116,4 +116,20 @@ describe('Transfer Controller', () => {
     expect(httpResponse.body).toEqual(new InvalidParamError('beneficiaryCpf'))
   })
 
+  test('Should call CpfValidator with correct cpf and correct beneficiaryCpf', async () => {
+    const { sut, cpfValidatorStub } = makeSut()
+    const isValidSpy = jest.spyOn(cpfValidatorStub, 'isValid')
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        beneficiaryCpf: 'valid_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    await sut.handle(httpRequest)
+    expect(isValidSpy).toHaveBeenCalledWith('any_cpf')
+    expect(isValidSpy).toHaveBeenCalledWith('valid_beneficiary_cpf')
+  })
+
 })
