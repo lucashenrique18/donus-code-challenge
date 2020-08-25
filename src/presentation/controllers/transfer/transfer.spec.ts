@@ -209,4 +209,22 @@ describe('Transfer Controller', () => {
     expect(httpResponse.body).toEqual(new UnauthorizedError())
   })
 
+  test('Should return 500 if Authentication throws', async () => {
+    const { sut, authenticationStub } = makeSut()
+    jest.spyOn(authenticationStub, 'auth').mockImplementationOnce(async () => {
+      return new Promise((resolve, reject) => reject(new Error()))
+    })
+    const httpRequest = {
+      body: {
+        cpf: 'invalid_cpf',
+        password: 'any_password',
+        beneficiaryCpf: 'any_beneficiary_cpf',
+        value: validValue
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
 })
