@@ -1,8 +1,4 @@
-import { TransferMoney, TransferModel } from "../../../domain/usecases/transfer-money/transfer-money"
-import { TransferMoneyModel } from "../../../domain/models/transfer-money-model"
-import { LoadAccountByCpfRepository } from "../../protocols/db/account/load-account-by-cpf-repository"
-import { AlterMoneyAccountRepository } from "../../protocols/db/account/alter-money-account-repository"
-import { AccountMovimentationHistoryRepository } from "../../protocols/db/account/account-movimentation-history-repository"
+import { TransferMoney, TransferModel, TransferMoneyModel, LoadAccountByCpfRepository, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository } from "./db-transfer-money-protocol"
 
 export class DbTransferMoney implements TransferMoney {
 

@@ -1,6 +1,4 @@
-import { LoadMovimentation } from "../../../domain/usecases/movimentation/movimentation";
-import { MovimentationModel } from "../../../domain/models/movimentation-model";
-import { LoadMovimentationRepository } from "../../protocols/db/account/load-movimentations-repository";
+import { LoadMovimentation, MovimentationModel, LoadMovimentationRepository } from "./db-movimentation-protocol";
 
 export class DbMovimentation implements LoadMovimentation {
   constructor (private readonly loadMovimentationRepository: LoadMovimentationRepository) {}

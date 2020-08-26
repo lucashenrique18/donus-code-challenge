@@ -1,5 +1,4 @@
-import { DbMovimentation } from './db-movimentation'
-import { LoadMovimentationRepository, LoadMovimentationModel } from '../../protocols/db/account/load-movimentations-repository'
+import { DbMovimentation, LoadMovimentationRepository, LoadMovimentationModel } from './db-movimentation-protocol'
 
 const validMovimentationData = {
   cpf: 'any_cpf',

@@ -1,12 +1,7 @@
-import { LoadAccountByCpfRepository } from "../../protocols/db/account/load-account-by-cpf-repository"
 import { AccountModel } from "../../../domain/models/account-model"
-import { DbTransferMoney } from "./db-transfer-money"
-import { AlterMoneyAccountRepository } from "../../protocols/db/account/alter-money-account-repository"
 import { DepositModel } from "../../../domain/models/deposit-model"
-import { TransferMoneyModel } from "../../../domain/models/transfer-money-model"
-import { TransferModel } from "../../../domain/usecases/transfer-money/transfer-money"
-import { AccountMovimentationHistoryRepository } from "../../protocols/db/account/account-movimentation-history-repository"
 import { MovimentationModel } from "../../../domain/models/movimentation-model"
+import { LoadAccountByCpfRepository, DbTransferMoney, AlterMoneyAccountRepository, TransferMoneyModel, TransferModel, AccountMovimentationHistoryRepository } from './db-transfer-money-protocol'
 
 const transferData = {
   cpf: 'valid_cpf',
