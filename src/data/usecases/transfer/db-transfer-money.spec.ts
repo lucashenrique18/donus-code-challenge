@@ -44,3 +44,10 @@ test('Should call LoadAccountByCpfRepository with correct cpf', async () => {
   await sut.transfer(transferData)
   expect(loadCpfSpy).toHaveBeenCalledWith('valid_cpf')
 })
+
+test('Should throw if LoadAccountByCpfRepository throws', async () => {
+  const { sut, loadAccountByCpfRepositoryStub } = makeSut()
+  jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+  const promise = sut.transfer(transferData)
+  await expect(promise).rejects.toThrow()
+})
