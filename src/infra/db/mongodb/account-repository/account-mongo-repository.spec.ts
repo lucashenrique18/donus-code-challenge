@@ -90,4 +90,25 @@ describe('Account Mongo Repository', () => {
     expect(account.depositValue).toBe(100)
   })
 
+  test('Should return an Transfer on transfer success', async () => {
+    const sut = new AccountMongoRepository()
+    await accountCollection.insertOne({
+      name: 'any_name',
+      cpf: 'any_cpf',
+      password: 'any_password',
+      money: 1000
+    })
+    const account = await sut.transfer({
+      cpf: 'any_cpf',
+      password: 'any_password',
+      beneficiaryCpf: 'any_cpf_beneficiary',
+      value: 100
+    })
+    expect(account).toBeTruthy()
+    expect(account.name).toBe('any_name')
+    expect(account.cpf).toBe('any_cpf')
+    expect(account.beneficiaryCpf).toBe('any_cpf_beneficiary')
+    expect(account.value).toBe(100)
+  })
+
 })
