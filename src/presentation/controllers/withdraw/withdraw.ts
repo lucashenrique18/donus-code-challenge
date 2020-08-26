@@ -1,9 +1,6 @@
 import { unauthorized, badRequest, serverError, ok } from "../../helpers/http-helper"
 import { InvalidParamError, MissingParamError } from "../../errors"
-import { HttpResponse, HttpRequest, Controller } from "../../protocols"
-import { CpfValidator } from "../../protocols/cpf-validator"
-import { Authentication } from "../../../domain/usecases/authentication/authentication"
-import { WithdrawMoney } from "../../../domain/usecases/withdraw/withdraw-money"
+import { WithdrawMoney, HttpResponse, HttpRequest, Controller, CpfValidator, Authentication } from './withdraw-protocols'
 
 export class WithdrawController implements Controller {
   constructor (private readonly cpfValidator: CpfValidator, private readonly authentication: Authentication, private readonly withdrawMoney: WithdrawMoney) {}

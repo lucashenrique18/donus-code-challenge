@@ -1,19 +1,16 @@
 import { MissingParamError, ServerError, InvalidParamError, UnauthorizedError } from "../../errors"
-import { CpfValidator } from "../../protocols/cpf-validator"
-import { Authentication } from "../../../domain/usecases/authentication/authentication"
 import { WithdrawController } from "./withdraw"
-import { WithdrawModel, WithdrawMoney } from "../../../domain/usecases/withdraw/withdraw-money"
-import { WithdrawReturnModel } from "../../../domain/models/withdraw-return-model"
+import { WithdrawMoney, CpfValidator, Authentication, WithdrawModel, WithdrawReturnModel } from './withdraw-protocols'
 
 const makeWithdrawMoney = (): WithdrawMoney => {
   class WithdrawMoneyStub implements WithdrawMoney {
     async withdraw (withdrawData: WithdrawModel): Promise<WithdrawReturnModel> {
-      const fakeDeposit = {
+      const fakeWithdraw = {
         name: 'valid_name',
         cpf: 'valid_cpf',
         value: 100
       }
-      return new Promise(resolve => resolve(fakeDeposit))
+      return new Promise(resolve => resolve(fakeWithdraw))
     }
   }
   return new WithdrawMoneyStub()
