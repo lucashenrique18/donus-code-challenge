@@ -147,6 +147,15 @@ describe('Db Transfer Money', () => {
     })
   })
 
+  test('Should throw if AccountMovimentationHistoryRepository saveMovimentation throws', async () => {
+    const { sut, accountMovimentationHistoryRepositoryStub } = makeSut()
+    jest.spyOn(accountMovimentationHistoryRepositoryStub, 'saveMovimentation').mockImplementationOnce(() => {
+      throw new Error()
+    })
+    const promise = sut.transfer(transferData)
+    await expect(promise).rejects.toThrow()
+  })
+
 
 })
 
