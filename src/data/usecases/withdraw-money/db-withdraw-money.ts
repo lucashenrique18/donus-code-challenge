@@ -7,7 +7,7 @@ export class DbWithdrawMoney implements WithdrawMoney {
   constructor (private readonly alterMoneyAccountRepository: AlterMoneyAccountRepository, private readonly accountMovimentationHistoryRepository: AccountMovimentationHistoryRepository) {}
 
   async withdraw (withdrawData: WithdrawModel): Promise<WithdrawReturnModel> {
-    const validTaxValue = withdrawData.value*0.01
+    const taxValue = withdrawData.value*0.01
     const withdraw = await this.alterMoneyAccountRepository.withdraw(withdrawData)
     await this.accountMovimentationHistoryRepository.saveMovimentation({
       cpf: withdrawData.cpf,
@@ -17,7 +17,7 @@ export class DbWithdrawMoney implements WithdrawMoney {
       },
       date: new Date()
     })
-    return { name: withdraw.name, cpf: withdraw.cpf, value: withdrawData.value-validTaxValue, tax: validTaxValue }
+    return { name: withdraw.name, cpf: withdraw.cpf, value: withdrawData.value-taxValue, tax: taxValue }
   }
 
 }

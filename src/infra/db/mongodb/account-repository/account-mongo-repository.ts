@@ -11,6 +11,7 @@ import { AccountMovimentationHistoryRepository } from '../../../../data/protocol
 import { TransferMoneyModel } from '../../../../domain/models/transfer-money-model'
 import { TransferModel } from '../../../../domain/usecases/transfer-money/transfer-money'
 import { WithdrawReturnModel } from '../../../../domain/models/withdraw-return-model'
+import { WithdrawModel } from '../../../../domain/usecases/withdraw/withdraw-money'
 
 export class AccountMongoRepository implements AddAccountRepository, LoadAccountByCpfRepository, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository {
 
@@ -63,6 +64,17 @@ export class AccountMongoRepository implements AddAccountRepository, LoadAccount
     }))
   }
 
-  withdraw (): Promise<WithdrawReturnModel> { return null }
+  async withdraw (withdrawData: WithdrawModel): Promise<WithdrawReturnModel> {
+    const taxValue = withdrawData.value*0.01
+    const accountCollection = await MongoHelper.getCollection('accounts')
+    await accountCollection.updateOne({cpf: withdrawData.cpf}, {$inc: {money: -withdrawData.value}})
+    const account = await accountCollection.findOne({cpf: withdrawData.cpf})
+    return new Promise(resolve => resolve({
+      name: account.name,
+      cpf: account.cpf,
+      value: withdrawData.value,
+      tax: taxValue
+    }))
+  }
 
 }
