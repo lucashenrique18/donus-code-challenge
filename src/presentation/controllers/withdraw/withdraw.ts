@@ -28,6 +28,9 @@ export class WithdrawController implements Controller {
       const withdraw = await this.withdrawMoney.withdraw({
         cpf: cpf.replace(/([-.]*)/g, ''), password, value
       })
+      if (withdraw === null) {
+        return badRequest(new InvalidParamError('value'))
+      }
       return ok(withdraw)
     } catch (error) {
       console.error(error)
