@@ -9,16 +9,18 @@ const transferData = {
   value: 100
 }
 
+const validAccout = {
+  id: 'valid_id',
+  name: 'valid_name',
+  cpf: 'valid_cpf',
+  password: 'hashed_password',
+  money: 1000
+}
+
 const makeLoadAccountByCpfRepository = (): LoadAccountByCpfRepository => {
   class LoadAccountByCpfRepositoryStub implements LoadAccountByCpfRepository {
     async loadByCpf (cpf: string): Promise<AccountModel> {
-      return new Promise(resolve => resolve({
-        id: 'valid_id',
-        name: 'valid_name',
-        cpf: 'valid_cpf',
-        password: 'hashed_password',
-        money: 0
-      }))
+      return new Promise(resolve => resolve(validAccout))
     }
   }
   return new LoadAccountByCpfRepositoryStub()
@@ -53,7 +55,15 @@ test('Should throw if LoadAccountByCpfRepository throws', async () => {
 })
 
 test('Should return null if money is less then transfer value', async () => {
-  const { sut } = makeSut()
+  const { sut, loadAccountByCpfRepositoryStub } = makeSut()
+  jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve(validAccout)))
   const transfer = await sut.transfer(transferData)
   expect(transfer).toBeNull()
+})
+
+test('Should return undefined if beneficiary not exists', async () => {
+  const { sut, loadAccountByCpfRepositoryStub } = makeSut()
+  jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve(validAccout))).mockReturnValueOnce(new Promise(resolve => resolve(null)))
+  const transfer = await sut.transfer(transferData)
+  expect(transfer).toBeUndefined()
 })
