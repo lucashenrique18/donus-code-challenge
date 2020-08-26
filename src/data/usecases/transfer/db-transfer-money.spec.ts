@@ -5,6 +5,8 @@ import { AlterMoneyAccountRepository } from "../../protocols/db/account/alter-mo
 import { DepositModel } from "../../../domain/models/deposit-model"
 import { TransferMoneyModel } from "../../../domain/models/transfer-money-model"
 import { TransferModel } from "../../../domain/usecases/transfer-money/transfer-money"
+import { AccountMovimentationHistoryRepository } from "../../protocols/db/account/account-movimentation-history-repository"
+import { MovimentationModel } from "../../../domain/models/movimentation-model"
 
 const transferData = {
   cpf: 'valid_cpf',
@@ -19,6 +21,25 @@ const validAccout = {
   cpf: 'valid_cpf',
   password: 'hashed_password',
   money: 1000
+}
+
+const validMovimentationData = {
+  cpf: transferData.cpf,
+  type: 'transfer',
+  date: new Date(),
+  movimentation: {
+    value: transferData.value,
+    beneficiary: transferData.beneficiaryCpf
+  }
+}
+
+const makeAccountMovimentationHistoryRepository = (): AccountMovimentationHistoryRepository => {
+  class AccountMovimentationHistoryRepositoryStub implements AccountMovimentationHistoryRepository {
+    async saveMovimentation (movimentationData: MovimentationModel): Promise<MovimentationModel> {
+      return new Promise(resolve => resolve(validMovimentationData))
+    }
+  }
+  return new AccountMovimentationHistoryRepositoryStub()
 }
 
 const makeAlterMoneyAccountRepository = (): AlterMoneyAccountRepository => {
@@ -51,57 +72,85 @@ interface SutTypes {
   sut: DbTransferMoney
   loadAccountByCpfRepositoryStub: LoadAccountByCpfRepository
   alterMoneyAccountRepositoryStub: AlterMoneyAccountRepository
+  accountMovimentationHistoryRepositoryStub: AccountMovimentationHistoryRepository
 }
 
 const makeSut = (): SutTypes => {
   const loadAccountByCpfRepositoryStub = makeLoadAccountByCpfRepository()
   const alterMoneyAccountRepositoryStub = makeAlterMoneyAccountRepository()
-  const sut = new DbTransferMoney(loadAccountByCpfRepositoryStub, alterMoneyAccountRepositoryStub)
+  const accountMovimentationHistoryRepositoryStub = makeAccountMovimentationHistoryRepository()
+  const sut = new DbTransferMoney(loadAccountByCpfRepositoryStub, alterMoneyAccountRepositoryStub, accountMovimentationHistoryRepositoryStub)
   return {
     sut,
     loadAccountByCpfRepositoryStub,
-    alterMoneyAccountRepositoryStub
+    alterMoneyAccountRepositoryStub,
+    accountMovimentationHistoryRepositoryStub
   }
 }
 
-test('Should call LoadAccountByCpfRepository with correct cpf', async () => {
-  const {sut, loadAccountByCpfRepositoryStub} = makeSut()
-  const loadCpfSpy = jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf')
-  await sut.transfer(transferData)
-  expect(loadCpfSpy).toHaveBeenCalledWith('valid_cpf')
+describe('Db Transfer Money', () => {
+  test('Should call LoadAccountByCpfRepository with correct cpf', async () => {
+    const {sut, loadAccountByCpfRepositoryStub} = makeSut()
+    const loadCpfSpy = jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf')
+    await sut.transfer(transferData)
+    expect(loadCpfSpy).toHaveBeenCalledWith('valid_cpf')
+  })
+
+  test('Should throw if LoadAccountByCpfRepository throws', async () => {
+    const { sut, loadAccountByCpfRepositoryStub } = makeSut()
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+    const promise = sut.transfer(transferData)
+    await expect(promise).rejects.toThrow()
+  })
+
+  test('Should return null if money is less then transfer value', async () => {
+    const { sut, loadAccountByCpfRepositoryStub } = makeSut()
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve(validAccout)))
+    const transfer = await sut.transfer(transferData)
+    expect(transfer).toBeNull()
+  })
+
+  test('Should return undefined if beneficiary not exists', async () => {
+    const { sut, loadAccountByCpfRepositoryStub } = makeSut()
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve(validAccout))).mockReturnValueOnce(new Promise(resolve => resolve(null)))
+    const transfer = await sut.transfer(transferData)
+    expect(transfer).toBeUndefined()
+  })
+
+  test('Should call AlterMoneyAccountRepository deposit with correct values', async () => {
+    const {sut, alterMoneyAccountRepositoryStub} = makeSut()
+    const transferSpy = jest.spyOn(alterMoneyAccountRepositoryStub, 'transfer')
+    await sut.transfer(transferData)
+    expect(transferSpy).toHaveBeenCalledWith(transferData)
+  })
+
+  test('Should throw if AlterMoneyAccountRepository throws', async () => {
+    const { sut, alterMoneyAccountRepositoryStub } = makeSut()
+    jest.spyOn(alterMoneyAccountRepositoryStub, 'transfer').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+    const promise = sut.transfer(transferData)
+    await expect(promise).rejects.toThrow()
+  })
+
+  test('Should call AccountMovimentationHistoryRepository saveMovimentation with correct values', async () => {
+    const {sut, accountMovimentationHistoryRepositoryStub} = makeSut()
+    const saveSpy = jest.spyOn(accountMovimentationHistoryRepositoryStub, 'saveMovimentation')
+    const date = new Date()
+    await sut.transfer(transferData)
+    expect(saveSpy).toHaveBeenCalledWith({
+      cpf: transferData.cpf,
+      type: 'transfer',
+      date: date,
+      movimentation: {
+        value: transferData.value,
+        beneficiary: transferData.beneficiaryCpf
+      }
+    })
+  })
+
+
 })
 
-test('Should throw if LoadAccountByCpfRepository throws', async () => {
-  const { sut, loadAccountByCpfRepositoryStub } = makeSut()
-  jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
-  const promise = sut.transfer(transferData)
-  await expect(promise).rejects.toThrow()
-})
 
-test('Should return null if money is less then transfer value', async () => {
-  const { sut, loadAccountByCpfRepositoryStub } = makeSut()
-  jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve(validAccout)))
-  const transfer = await sut.transfer(transferData)
-  expect(transfer).toBeNull()
-})
 
-test('Should return undefined if beneficiary not exists', async () => {
-  const { sut, loadAccountByCpfRepositoryStub } = makeSut()
-  jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve(validAccout))).mockReturnValueOnce(new Promise(resolve => resolve(null)))
-  const transfer = await sut.transfer(transferData)
-  expect(transfer).toBeUndefined()
-})
 
-test('Should call AlterMoneyAccountRepository deposit with correct values', async () => {
-  const {sut, alterMoneyAccountRepositoryStub} = makeSut()
-  const depositSpy = jest.spyOn(alterMoneyAccountRepositoryStub, 'transfer')
-  await sut.transfer(transferData)
-  expect(depositSpy).toHaveBeenCalledWith(transferData)
-})
 
-test('Should throw if AlterMoneyAccountRepository throws', async () => {
-  const { sut, alterMoneyAccountRepositoryStub } = makeSut()
-  jest.spyOn(alterMoneyAccountRepositoryStub, 'transfer').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
-  const promise = sut.transfer(transferData)
-  await expect(promise).rejects.toThrow()
-})
