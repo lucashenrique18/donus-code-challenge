@@ -1,7 +1,7 @@
 import { MissingParamError, InvalidParamError } from '../../errors'
 import { Controller, HttpRequest, HttpResponse } from '../../protocols'
 import { badRequest, serverError, unauthorized, ok } from '../../helpers/http-helper'
-import { CpfValidator, Authentication, TransferMoney } from './transfer-protocol'
+import { CpfValidator, Authentication, TransferMoney } from './transfer-protocols'
 
 export class TransferController implements Controller {
 
