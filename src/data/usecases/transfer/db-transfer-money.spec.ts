@@ -1,6 +1,10 @@
 import { LoadAccountByCpfRepository } from "../../protocols/db/account/load-account-by-cpf-repository"
 import { AccountModel } from "../../../domain/models/account-model"
 import { DbTransferMoney } from "./db-transfer-money"
+import { AlterMoneyAccountRepository } from "../../protocols/db/account/alter-money-account-repository"
+import { DepositModel } from "../../../domain/models/deposit-model"
+import { TransferMoneyModel } from "../../../domain/models/transfer-money-model"
+import { TransferModel } from "../../../domain/usecases/transfer-money/transfer-money"
 
 const transferData = {
   cpf: 'valid_cpf',
@@ -17,6 +21,23 @@ const validAccout = {
   money: 1000
 }
 
+const makeAlterMoneyAccountRepository = (): AlterMoneyAccountRepository => {
+  class AlterMoneyAccountRepositoryStub implements AlterMoneyAccountRepository {
+    async deposit (): Promise<DepositModel> {
+      return new Promise(resolve => resolve(null))
+    }
+    async transfer (transferMoney: TransferModel): Promise<TransferMoneyModel> {
+      return new Promise(resolve => resolve({
+        name: 'any_name',
+        cpf: 'any_cpf',
+        beneficiaryCpf: 'any_beneficiary_cpf',
+        value: 100
+      }))
+    }
+  }
+  return new AlterMoneyAccountRepositoryStub()
+}
+
 const makeLoadAccountByCpfRepository = (): LoadAccountByCpfRepository => {
   class LoadAccountByCpfRepositoryStub implements LoadAccountByCpfRepository {
     async loadByCpf (cpf: string): Promise<AccountModel> {
@@ -29,14 +50,17 @@ const makeLoadAccountByCpfRepository = (): LoadAccountByCpfRepository => {
 interface SutTypes {
   sut: DbTransferMoney
   loadAccountByCpfRepositoryStub: LoadAccountByCpfRepository
+  alterMoneyAccountRepositoryStub: AlterMoneyAccountRepository
 }
 
 const makeSut = (): SutTypes => {
   const loadAccountByCpfRepositoryStub = makeLoadAccountByCpfRepository()
-  const sut = new DbTransferMoney(loadAccountByCpfRepositoryStub)
+  const alterMoneyAccountRepositoryStub = makeAlterMoneyAccountRepository()
+  const sut = new DbTransferMoney(loadAccountByCpfRepositoryStub, alterMoneyAccountRepositoryStub)
   return {
     sut,
-    loadAccountByCpfRepositoryStub
+    loadAccountByCpfRepositoryStub,
+    alterMoneyAccountRepositoryStub
   }
 }
 
@@ -66,4 +90,11 @@ test('Should return undefined if beneficiary not exists', async () => {
   jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve(validAccout))).mockReturnValueOnce(new Promise(resolve => resolve(null)))
   const transfer = await sut.transfer(transferData)
   expect(transfer).toBeUndefined()
+})
+
+test('Should call AlterMoneyAccountRepository deposit with correct values', async () => {
+  const {sut, alterMoneyAccountRepositoryStub} = makeSut()
+  const depositSpy = jest.spyOn(alterMoneyAccountRepositoryStub, 'transfer')
+  await sut.transfer(transferData)
+  expect(depositSpy).toHaveBeenCalledWith(transferData)
 })
