@@ -1,4 +1,4 @@
-import { MissingParamError, ServerError, InvalidParamError } from "../../errors"
+import { MissingParamError, ServerError, InvalidParamError, UnauthorizedError } from "../../errors"
 import { CpfValidator } from "../../protocols/cpf-validator"
 import { Authentication } from "../../../domain/usecases/authentication/authentication"
 import { WithdrawController } from "./withdraw"
@@ -125,6 +125,52 @@ describe('Withdraw Controller', () => {
     const { sut, cpfValidatorStub } = makeSut()
     jest.spyOn(cpfValidatorStub, 'isValid').mockImplementationOnce(() => {
       throw new Error()
+    })
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        value: 100
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
+  test('Should call Authentication with correct values', async () => {
+    const { sut, authenticationStub } = makeSut()
+    const authSpy = jest.spyOn(authenticationStub, 'auth')
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        value: 100
+      }
+    }
+    await sut.handle(httpRequest)
+    expect(authSpy).toHaveBeenCalledWith('any_cpf', 'any_password')
+  })
+
+  test('Should return 401 if invalid credentials are provided', async () => {
+    const { sut, authenticationStub } = makeSut()
+    jest.spyOn(authenticationStub, 'auth').mockReturnValueOnce(new Promise(resolve => resolve(false)))
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        value: 100
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(401)
+    expect(httpResponse.body).toEqual(new UnauthorizedError())
+  })
+
+  test('Should return 500 if Authentication throws', async () => {
+    const { sut, authenticationStub } = makeSut()
+    jest.spyOn(authenticationStub, 'auth').mockImplementationOnce(async () => {
+      return new Promise((resolve, reject) => reject(new Error()))
     })
     const httpRequest = {
       body: {
