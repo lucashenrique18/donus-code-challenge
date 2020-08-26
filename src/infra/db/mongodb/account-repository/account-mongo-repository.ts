@@ -10,6 +10,7 @@ import { MovimentationModel } from '../../../../domain/models/movimentation-mode
 import { AccountMovimentationHistoryRepository } from '../../../../data/protocols/db/account/account-movimentation-history-repository'
 import { TransferMoneyModel } from '../../../../domain/models/transfer-money-model'
 import { TransferModel } from '../../../../domain/usecases/transfer-money/transfer-money'
+import { WithdrawReturnModel } from '../../../../domain/models/withdraw-return-model'
 
 export class AccountMongoRepository implements AddAccountRepository, LoadAccountByCpfRepository, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository {
 
@@ -61,5 +62,7 @@ export class AccountMongoRepository implements AddAccountRepository, LoadAccount
       value: transferMoney.value
     }))
   }
+
+  withdraw (): Promise<WithdrawReturnModel> { return null }
 
 }

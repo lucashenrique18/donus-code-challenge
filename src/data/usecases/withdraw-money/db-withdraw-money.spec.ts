@@ -1,35 +1,41 @@
-import { DepositAccount, DepositAmountModel, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository, DepositModel, MovimentationModel } from "./db-deposit-account-protocol";
-import { TransferMoneyModel } from "../../../domain/models/transfer-money-model";
-import { WithdrawReturnModel } from "../../../domain/models/withdraw-return-model";
+import { AlterMoneyAccountRepository } from "../../protocols/db/account/alter-money-account-repository"
+import { TransferMoneyModel } from "../../../domain/models/transfer-money-model"
+import { DepositModel } from "../../../domain/models/deposit-model"
+import { AccountMovimentationHistoryRepository } from "../../protocols/db/account/account-movimentation-history-repository"
+import { MovimentationModel } from "../../../domain/models/movimentation-model"
+import { WithdrawModel } from "../../../domain/usecases/withdraw/withdraw-money"
+import { WithdrawReturnModel } from "../../../domain/models/withdraw-return-model"
+import { DbWithdrawMoney } from "./db-withdraw-money"
 
-const validDeposit = 100
-const depositWithBonus = validDeposit+(validDeposit*0.005)
+const validValue = 100
+const validTaxValue = validValue*0.01
 const validAccount = {
   name: 'any_name',
   cpf: 'any_cpf',
-  depositValue: depositWithBonus
+  value: validValue-validTaxValue,
+  tax: validTaxValue
 }
-const validDepositData = {
+const validWithdrawData = {
   cpf: 'any_cpf',
   password: 'any_password',
-  depositValue: validDeposit
+  value: validValue
 }
 const validMovimentationData = {
-  cpf: validDepositData.cpf,
-  type: 'deposit',
+  cpf: validWithdrawData.cpf,
+  type: 'withdraw',
   date: new Date(),
   movimentation: {
-    value: depositWithBonus
+    value: validValue
   }
 }
 
 const makeAlterMoneyAccountRepository = (): AlterMoneyAccountRepository => {
   class AlterMoneyAccountRepositoryStub implements AlterMoneyAccountRepository {
-    async deposit (deposit: DepositAmountModel): Promise<DepositModel> {
+    deposit (): Promise<DepositModel> { return null }
+    transfer (): Promise<TransferMoneyModel> { return null }
+    async withdraw (withdrawData: WithdrawModel): Promise<WithdrawReturnModel> {
       return new Promise(resolve => resolve(validAccount))
     }
-    transfer (): Promise<TransferMoneyModel> { return null }
-    withdraw (): Promise<WithdrawReturnModel> { return null }
   }
   return new AlterMoneyAccountRepositoryStub()
 }
@@ -44,7 +50,7 @@ const makeAccountMovimentationHistoryRepository = (): AccountMovimentationHistor
 }
 
 interface SutTypes {
-  sut: DepositAccount
+  sut: DbWithdrawMoney
   alterMoneyAccountRepositoryStub: AlterMoneyAccountRepository
   accountMovimentationHistoryRepositoryStub: AccountMovimentationHistoryRepository
 }
@@ -52,7 +58,7 @@ interface SutTypes {
 const makeSut = (): SutTypes => {
   const alterMoneyAccountRepositoryStub = makeAlterMoneyAccountRepository()
   const accountMovimentationHistoryRepositoryStub = makeAccountMovimentationHistoryRepository()
-  const sut = new DepositAccount(alterMoneyAccountRepositoryStub, accountMovimentationHistoryRepositoryStub)
+  const sut = new DbWithdrawMoney(alterMoneyAccountRepositoryStub, accountMovimentationHistoryRepositoryStub)
   return {
     sut,
     alterMoneyAccountRepositoryStub,
@@ -60,24 +66,19 @@ const makeSut = (): SutTypes => {
   }
 }
 
+describe('Withdraw Money UseCase', () => {
 
-describe('Deposit Account UseCase', () => {
-
-  test('Should call AlterMoneyAccountRepository deposit with correct values', async () => {
+  test('Should call AlterMoneyAccountRepository withdraw with correct values', async () => {
     const {sut, alterMoneyAccountRepositoryStub} = makeSut()
-    const depositSpy = jest.spyOn(alterMoneyAccountRepositoryStub, 'deposit')
-    await sut.deposit(validDepositData)
-    expect(depositSpy).toHaveBeenCalledWith({
-      cpf: 'any_cpf',
-      password: 'any_password',
-      depositValue: depositWithBonus
-    })
+    const withdrawSpy = jest.spyOn(alterMoneyAccountRepositoryStub, 'withdraw')
+    await sut.withdraw(validWithdrawData)
+    expect(withdrawSpy).toHaveBeenCalledWith(validWithdrawData)
   })
 
   test('Should throw if AlterMoneyAccountRepository throws', async () => {
     const { sut, alterMoneyAccountRepositoryStub } = makeSut()
-    jest.spyOn(alterMoneyAccountRepositoryStub, 'deposit').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
-    const promise = sut.deposit(validDepositData)
+    jest.spyOn(alterMoneyAccountRepositoryStub, 'withdraw').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+    const promise = sut.withdraw(validWithdrawData)
     await expect(promise).rejects.toThrow()
   })
 
@@ -85,13 +86,13 @@ describe('Deposit Account UseCase', () => {
     const {sut, accountMovimentationHistoryRepositoryStub} = makeSut()
     const saveSpy = jest.spyOn(accountMovimentationHistoryRepositoryStub, 'saveMovimentation')
     const date = new Date()
-    await sut.deposit(validDepositData)
+    await sut.withdraw(validWithdrawData)
     expect(saveSpy).toHaveBeenCalledWith({
-      cpf: validDepositData.cpf,
-      type: 'deposit',
+      cpf: validWithdrawData.cpf,
+      type: 'withdraw',
       date: date,
       movimentation: {
-        value: depositWithBonus
+        value: validWithdrawData.value
       }
     })
   })
@@ -101,15 +102,14 @@ describe('Deposit Account UseCase', () => {
     jest.spyOn(accountMovimentationHistoryRepositoryStub, 'saveMovimentation').mockImplementationOnce(() => {
       throw new Error()
     })
-    const promise = sut.deposit(validDepositData)
+    const promise = sut.withdraw(validWithdrawData)
     await expect(promise).rejects.toThrow()
   })
 
-  test('Should return an account on success', async () => {
+  test('Should return an withdraw on success', async () => {
     const { sut } = makeSut()
-    const account = await sut.deposit(validDepositData)
+    const account = await sut.withdraw(validWithdrawData)
     expect(account).toEqual(validAccount)
   })
 
 })
-

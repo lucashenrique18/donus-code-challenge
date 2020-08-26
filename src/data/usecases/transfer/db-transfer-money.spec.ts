@@ -2,6 +2,7 @@ import { AccountModel } from "../../../domain/models/account-model"
 import { DepositModel } from "../../../domain/models/deposit-model"
 import { MovimentationModel } from "../../../domain/models/movimentation-model"
 import { LoadAccountByCpfRepository, DbTransferMoney, AlterMoneyAccountRepository, TransferMoneyModel, TransferModel, AccountMovimentationHistoryRepository } from './db-transfer-money-protocol'
+import { WithdrawReturnModel } from "../../../domain/models/withdraw-return-model"
 
 const transferData = {
   cpf: 'valid_cpf',
@@ -39,9 +40,7 @@ const makeAccountMovimentationHistoryRepository = (): AccountMovimentationHistor
 
 const makeAlterMoneyAccountRepository = (): AlterMoneyAccountRepository => {
   class AlterMoneyAccountRepositoryStub implements AlterMoneyAccountRepository {
-    async deposit (): Promise<DepositModel> {
-      return new Promise(resolve => resolve(null))
-    }
+    deposit (): Promise<DepositModel> { return null }
     async transfer (transferMoney: TransferModel): Promise<TransferMoneyModel> {
       return new Promise(resolve => resolve({
         name: 'any_name',
@@ -50,6 +49,7 @@ const makeAlterMoneyAccountRepository = (): AlterMoneyAccountRepository => {
         value: 100
       }))
     }
+    withdraw (): Promise<WithdrawReturnModel> { return null }
   }
   return new AlterMoneyAccountRepositoryStub()
 }

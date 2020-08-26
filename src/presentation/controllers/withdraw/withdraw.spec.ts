@@ -8,7 +8,8 @@ const makeWithdrawMoney = (): WithdrawMoney => {
       const fakeWithdraw = {
         name: 'valid_name',
         cpf: 'valid_cpf',
-        value: 100
+        value: 100,
+        tax: 1
       }
       return new Promise(resolve => resolve(fakeWithdraw))
     }
@@ -231,7 +232,8 @@ describe('Withdraw Controller', () => {
     expect(httpResponse.body).toEqual({
       name: 'valid_name',
       cpf: 'valid_cpf',
-      value: 100
+      value: 100,
+      tax: 1
     })
   })
 
