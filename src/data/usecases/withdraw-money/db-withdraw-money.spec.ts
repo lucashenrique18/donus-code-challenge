@@ -6,6 +6,8 @@ import { MovimentationModel } from "../../../domain/models/movimentation-model"
 import { WithdrawModel } from "../../../domain/usecases/withdraw/withdraw-money"
 import { WithdrawReturnModel } from "../../../domain/models/withdraw-return-model"
 import { DbWithdrawMoney } from "./db-withdraw-money"
+import { LoadAccountByCpfRepository } from "../../protocols/db/account/load-account-by-cpf-repository"
+import { AccountModel } from "../../../domain/models/account-model"
 
 const validValue = 100
 const validTaxValue = validValue*0.01
@@ -49,24 +51,69 @@ const makeAccountMovimentationHistoryRepository = (): AccountMovimentationHistor
   return new AccountMovimentationHistoryRepositoryStub()
 }
 
+const makeLoadAccountByCpfRepository = (): LoadAccountByCpfRepository => {
+  class LoadAccountByCpfRepositoryStub implements LoadAccountByCpfRepository {
+    async loadByCpf (cpf: string): Promise<AccountModel> {
+      return new Promise(resolve => resolve({
+        id: 'any_id',
+        name: 'any_name',
+        cpf: 'any_cpf',
+        password: 'hashed_password',
+        money: 100
+      }))
+    }
+  }
+  return new LoadAccountByCpfRepositoryStub()
+}
+
 interface SutTypes {
   sut: DbWithdrawMoney
+  loadAccountByCpfRepositoryStub: LoadAccountByCpfRepository
   alterMoneyAccountRepositoryStub: AlterMoneyAccountRepository
   accountMovimentationHistoryRepositoryStub: AccountMovimentationHistoryRepository
 }
 
 const makeSut = (): SutTypes => {
+  const loadAccountByCpfRepositoryStub = makeLoadAccountByCpfRepository()
   const alterMoneyAccountRepositoryStub = makeAlterMoneyAccountRepository()
   const accountMovimentationHistoryRepositoryStub = makeAccountMovimentationHistoryRepository()
-  const sut = new DbWithdrawMoney(alterMoneyAccountRepositoryStub, accountMovimentationHistoryRepositoryStub)
+  const sut = new DbWithdrawMoney(loadAccountByCpfRepositoryStub, alterMoneyAccountRepositoryStub, accountMovimentationHistoryRepositoryStub)
   return {
     sut,
+    loadAccountByCpfRepositoryStub,
     alterMoneyAccountRepositoryStub,
     accountMovimentationHistoryRepositoryStub
   }
 }
 
 describe('Withdraw Money UseCase', () => {
+
+  test('Should call LoadAccountByCpfRepository with correct cpf', async () => {
+    const {sut, loadAccountByCpfRepositoryStub} = makeSut()
+    const loadCpfSpy = jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf')
+    await sut.withdraw(validWithdrawData)
+    expect(loadCpfSpy).toHaveBeenCalledWith('any_cpf')
+  })
+
+  test('Should throw if LoadAccountByCpfRepository throws', async () => {
+    const { sut, loadAccountByCpfRepositoryStub } = makeSut()
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+    const promise = sut.withdraw(validWithdrawData)
+    await expect(promise).rejects.toThrow()
+  })
+
+  test('Should return null if money is less then transfer value', async () => {
+    const { sut, loadAccountByCpfRepositoryStub } = makeSut()
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve({
+        id: 'any_cpf',
+        name: 'any_name',
+        cpf: 'any_cpf',
+        password: 'hashed_password',
+        money: 50
+    })))
+    const transfer = await sut.withdraw(validWithdrawData)
+    expect(transfer).toBeNull()
+  })
 
   test('Should call AlterMoneyAccountRepository withdraw with correct values', async () => {
     const {sut, alterMoneyAccountRepositoryStub} = makeSut()
