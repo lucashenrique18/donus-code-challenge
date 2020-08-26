@@ -11,6 +11,10 @@ export class DbTransferMoney implements TransferMoney {
     if (account.money < transferMoney.value) {
       return null
     }
+    const beneficiary = await this.loadAccountByCpfRepository.loadByCpf(transferMoney.beneficiaryCpf)
+    if (!beneficiary) {
+      return undefined
+    }
     return null
   }
 }
