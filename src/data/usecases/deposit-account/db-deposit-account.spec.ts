@@ -1,4 +1,5 @@
 import { DepositAccount, DepositAmountModel, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository, DepositModel, MovimentationModel } from "./db-deposit-account-protocol";
+import { TransferMoneyModel } from "../../../domain/models/transfer-money-model";
 
 const validDeposit = 100
 const depositWithBonus = validDeposit+(validDeposit*0.05)
@@ -25,6 +26,9 @@ const makeAlterMoneyAccountRepository = (): AlterMoneyAccountRepository => {
   class AlterMoneyAccountRepositoryStub implements AlterMoneyAccountRepository {
     async deposit (deposit: DepositAmountModel): Promise<DepositModel> {
       return new Promise(resolve => resolve(validAccount))
+    }
+    async transfer (): Promise<TransferMoneyModel> {
+      return new Promise(resolve => resolve(null))
     }
   }
   return new AlterMoneyAccountRepositoryStub()

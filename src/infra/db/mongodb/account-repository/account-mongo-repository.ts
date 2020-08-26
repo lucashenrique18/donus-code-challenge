@@ -8,6 +8,7 @@ import { DepositAmountModel } from '../../../../domain/usecases/deposit-amount/d
 import { DepositModel } from '../../../../domain/models/deposit-model'
 import { MovimentationModel } from '../../../../domain/models/movimentation-model'
 import { AccountMovimentationHistoryRepository } from '../../../../data/protocols/db/account/account-movimentation-history-repository'
+import { TransferMoneyModel } from '../../../../domain/models/transfer-money-model'
 
 export class AccountMongoRepository implements AddAccountRepository, LoadAccountByCpfRepository, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository {
 
@@ -46,5 +47,7 @@ export class AccountMongoRepository implements AddAccountRepository, LoadAccount
       date
     }))
   }
+
+  async transfer (): Promise<TransferMoneyModel> {return null}
 
 }
