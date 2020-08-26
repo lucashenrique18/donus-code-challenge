@@ -20,7 +20,7 @@ const validAccout = {
   name: 'valid_name',
   cpf: 'valid_cpf',
   password: 'hashed_password',
-  money: 1000
+  money: 100
 }
 
 const validMovimentationData = {
@@ -105,7 +105,13 @@ describe('Db Transfer Money', () => {
 
   test('Should return null if money is less then transfer value', async () => {
     const { sut, loadAccountByCpfRepositoryStub } = makeSut()
-    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve(validAccout)))
+    jest.spyOn(loadAccountByCpfRepositoryStub, 'loadByCpf').mockReturnValueOnce(new Promise(resolve => resolve({
+        id: 'valid_id',
+        name: 'valid_name',
+        cpf: 'valid_cpf',
+        password: 'hashed_password',
+        money: 50
+    })))
     const transfer = await sut.transfer(transferData)
     expect(transfer).toBeNull()
   })
@@ -154,6 +160,17 @@ describe('Db Transfer Money', () => {
     })
     const promise = sut.transfer(transferData)
     await expect(promise).rejects.toThrow()
+  })
+
+  test('Should return an transfer on success', async () => {
+    const { sut } = makeSut()
+    const account = await sut.transfer(transferData)
+    expect(account).toEqual({
+      name: 'any_name',
+      cpf: 'any_cpf',
+      beneficiaryCpf: 'any_beneficiary_cpf',
+      value: 100
+    })
   })
 
 
