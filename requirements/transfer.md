@@ -12,7 +12,8 @@
 8. ✅ Valida saldo na conta do cliente
 9. ✅ **Atualiza** o valor contido na conta do usuário
 10. ✅ **Atualiza** o valor contido na conta do beneficiário
-11. ✅ Retorna **200** com os dados da transação
+11. ✅ **Salva** movimentação na conta
+12. ✅ Retorna **200** com os dados da transação
 
 > ## Exceções
 

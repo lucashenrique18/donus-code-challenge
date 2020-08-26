@@ -8,7 +8,8 @@
 4. ✅ **Busca** o usuário com o cpf e senha fornecidos
 5. ✅ Valida que o campo **depositValue** é um valor válido
 6. ✅ **Atualiza** o valor contido na conta do usuario com bonus
-7. ✅ Retorna **200** com os dados da transação
+7. ✅ **Salva** movimentação na conta
+8. ✅ Retorna **200** com os dados da transação
 
 > ## Exceções
 

@@ -9,7 +9,8 @@
 5. ✅ Valida que o campo **value** é um valor válido
 6. ✅ Valida saldo na conta do cliente
 7. ✅ **Atualiza** o valor contido na conta do usuário com taxa
-8. ✅ Retorna **200** com os dados da transação
+8. ✅ **Salva** movimentação na conta
+9. ✅ Retorna **200** com os dados da transação
 
 > ## Exceções
 
