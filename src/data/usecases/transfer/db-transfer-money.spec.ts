@@ -51,3 +51,9 @@ test('Should throw if LoadAccountByCpfRepository throws', async () => {
   const promise = sut.transfer(transferData)
   await expect(promise).rejects.toThrow()
 })
+
+test('Should return null if money is less then transfer value', async () => {
+  const { sut } = makeSut()
+  const transfer = await sut.transfer(transferData)
+  expect(transfer).toBeNull()
+})
