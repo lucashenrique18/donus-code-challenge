@@ -17,7 +17,7 @@ export class DbTransferMoney implements TransferMoney {
     if (!beneficiary) {
       return undefined
     }
-    await this.alterMoneyAccountRepository.transfer(transferMoney)
+    const transfer = await this.alterMoneyAccountRepository.transfer(transferMoney)
     await this.accountMovimentationHistoryRepository.saveMovimentation({
       cpf: transferMoney.cpf,
       type: 'transfer',
@@ -27,6 +27,6 @@ export class DbTransferMoney implements TransferMoney {
         beneficiary: transferMoney.beneficiaryCpf
       }
     })
-    return null
+    return transfer
   }
 }
