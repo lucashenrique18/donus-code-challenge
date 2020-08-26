@@ -7,7 +7,10 @@ export class DbTransferMoney implements TransferMoney {
   constructor (private readonly loadAccountByCpfRepository: LoadAccountByCpfRepository) {}
 
   async transfer (transferMoney: TransferModel): Promise<TransferMoneyModel> {
-    await this.loadAccountByCpfRepository.loadByCpf(transferMoney.cpf)
+    const account = await this.loadAccountByCpfRepository.loadByCpf(transferMoney.cpf)
+    if (account.money < transferMoney.value) {
+      return null
+    }
     return null
   }
 }
