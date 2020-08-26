@@ -98,3 +98,10 @@ test('Should call AlterMoneyAccountRepository deposit with correct values', asyn
   await sut.transfer(transferData)
   expect(depositSpy).toHaveBeenCalledWith(transferData)
 })
+
+test('Should throw if AlterMoneyAccountRepository throws', async () => {
+  const { sut, alterMoneyAccountRepositoryStub } = makeSut()
+  jest.spyOn(alterMoneyAccountRepositoryStub, 'transfer').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+  const promise = sut.transfer(transferData)
+  await expect(promise).rejects.toThrow()
+})
