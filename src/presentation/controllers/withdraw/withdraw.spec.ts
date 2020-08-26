@@ -2,6 +2,22 @@ import { MissingParamError, ServerError, InvalidParamError, UnauthorizedError } 
 import { CpfValidator } from "../../protocols/cpf-validator"
 import { Authentication } from "../../../domain/usecases/authentication/authentication"
 import { WithdrawController } from "./withdraw"
+import { WithdrawModel, WithdrawMoney } from "../../../domain/usecases/withdraw/withdraw-money"
+import { WithdrawReturnModel } from "../../../domain/models/withdraw-return-model"
+
+const makeWithdrawMoney = (): WithdrawMoney => {
+  class WithdrawMoneyStub implements WithdrawMoney {
+    async withdraw (withdrawData: WithdrawModel): Promise<WithdrawReturnModel> {
+      const fakeDeposit = {
+        name: 'valid_name',
+        cpf: 'valid_cpf',
+        value: 100
+      }
+      return new Promise(resolve => resolve(fakeDeposit))
+    }
+  }
+  return new WithdrawMoneyStub()
+}
 
 const makeAuthentication = (): Authentication => {
   class AuthenticationStub implements Authentication {
@@ -25,16 +41,19 @@ interface SutTypes {
   sut: WithdrawController
   cpfValidatorStub: CpfValidator
   authenticationStub: Authentication
+  withdrawMoneyStub: WithdrawMoney
 }
 
 const makeSut = (): SutTypes => {
   const cpfValidatorStub = makeCpfValidator()
   const authenticationStub = makeAuthentication()
-  const sut = new WithdrawController(cpfValidatorStub, authenticationStub)
+  const withdrawMoneyStub = makeWithdrawMoney()
+  const sut = new WithdrawController(cpfValidatorStub, authenticationStub, withdrawMoneyStub)
   return {
     sut,
     cpfValidatorStub,
-    authenticationStub
+    authenticationStub,
+    withdrawMoneyStub
   }
 }
 
@@ -183,4 +202,40 @@ describe('Withdraw Controller', () => {
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
+
+  test('Should return 500 if WithdrawMoney throws', async () => {
+    const { sut, withdrawMoneyStub } = makeSut()
+    jest.spyOn(withdrawMoneyStub, 'withdraw').mockImplementationOnce(async () => {
+      return new Promise((resolve, reject) => reject(new Error()))
+    })
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        value: 100
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
+  test('Should return 200 if valid data is provided', async () => {
+    const { sut } = makeSut()
+    const httpRequest = {
+      body: {
+        cpf: 'any_cpf',
+        password: 'any_password',
+        value: 100
+      }
+    }
+    const httpResponse = await sut.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(200)
+    expect(httpResponse.body).toEqual({
+      name: 'valid_name',
+      cpf: 'valid_cpf',
+      value: 100
+    })
+  })
+
 })
