@@ -9,6 +9,7 @@ import { DepositModel } from '../../../../domain/models/deposit-model'
 import { MovimentationModel } from '../../../../domain/models/movimentation-model'
 import { AccountMovimentationHistoryRepository } from '../../../../data/protocols/db/account/account-movimentation-history-repository'
 import { TransferMoneyModel } from '../../../../domain/models/transfer-money-model'
+import { TransferModel } from '../../../../domain/usecases/transfer-money/transfer-money'
 
 export class AccountMongoRepository implements AddAccountRepository, LoadAccountByCpfRepository, AlterMoneyAccountRepository, AccountMovimentationHistoryRepository {
 
@@ -48,6 +49,17 @@ export class AccountMongoRepository implements AddAccountRepository, LoadAccount
     }))
   }
 
-  async transfer (): Promise<TransferMoneyModel> {return null}
+  async transfer (transferMoney: TransferModel): Promise<TransferMoneyModel> {
+    const accountCollection = await MongoHelper.getCollection('accounts')
+    await accountCollection.updateOne({cpf: transferMoney.cpf}, {$inc: {money: -transferMoney.value}})
+    await accountCollection.updateOne({cpf: transferMoney.beneficiaryCpf}, {$inc: {money: transferMoney.value}})
+    const account = await accountCollection.findOne({cpf: transferMoney.cpf})
+    return new Promise(resolve => resolve({
+      name: account.name,
+      cpf: account.cpf,
+      beneficiaryCpf: transferMoney.beneficiaryCpf,
+      value: transferMoney.value
+    }))
+  }
 
 }
